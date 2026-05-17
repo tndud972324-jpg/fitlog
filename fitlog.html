@@ -499,25 +499,24 @@ const {
 const storage = {
   get: async key => {
     try {
-      if (window._db && window._uid) {
-        const doc = await window._db.collection('users').doc(window._uid).get();
-        if (!doc.exists) return null;
-        const val = doc.data()[key];
-        return val !== undefined ? { value: val } : null;
-      }
       const v = localStorage.getItem(key);
-      return v ? { value: v } : null;
-    } catch { return null; }
+      return v ? {
+        value: v
+      } : null;
+    } catch {
+      return null;
+    }
   },
   set: async (key, value) => {
     try {
-      if (window._db && window._uid) {
-        await window._db.collection('users').doc(window._uid).set({ [key]: value }, { merge: true });
-        return { key, value };
-      }
       localStorage.setItem(key, value);
-      return { key, value };
-    } catch { return null; }
+      return {
+        key,
+        value
+      };
+    } catch {
+      return null;
+    }
   }
 };
 
@@ -1843,80 +1842,64 @@ function FitLog() {
       }
     }, ex.sets.map((ss, si) => {
       const isSecs = ss.type === 'secs';
-      return /*#__PURE__*/React.createElement("div", {
+      const sideColors = {'': ['rgba(255,255,255,0.12)','#ccc'], L: ['rgba(91,156,246,0.3)','#5B9CF6'], R: ['rgba(255,107,157,0.3)','#FF6B9D']};
+      return React.createElement("div", {
         key: si,
-        style: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }
+        style: {display:'flex', alignItems:'center', gap:'6px', marginBottom:'8px', flexWrap:'nowrap'}
       },
-      /*#__PURE__*/React.createElement("span", {
-        style: { fontSize: '11px', color: C.dim, width: '16px', textAlign: 'center', fontFamily: mono, flexShrink: 0 }
-      }, si + 1),
-      /*#__PURE__*/React.createElement("button", {
-        onClick: () => updSet(sess.id, ei, si, 'type', isSecs ? 'reps' : 'secs'),
-        style: {
-          fontSize: '11px', padding: '5px 7px', borderRadius: '8px', cursor: 'pointer', border: 'none',
-          background: isSecs ? C.orangeBg : 'rgba(255,255,255,0.06)',
-          color: isSecs ? C.orange : C.mid, fontFamily: sans, flexShrink: 0
-        }
-      }, isSecs ? '⏱초' : '🏋횟수'),
-      isSecs
-        ? /*#__PURE__*/React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: '4px', flex: 1 } },
-            /*#__PURE__*/React.createElement("input", {
-              type: "number", inputMode: "numeric", placeholder: "0",
-              value: ss.reps,
-              onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
-              style: inp({ padding: '7px 8px', textAlign: 'center', fontFamily: mono, fontSize: '14px', flex: 1 })
-            }),
-            /*#__PURE__*/React.createElement("span", { style: { color: C.dim, fontSize: '12px', flexShrink: 0 } }, '초')
+        React.createElement("span", {style:{fontSize:'11px',color:C.dim,width:'14px',textAlign:'center',fontFamily:mono,flexShrink:0}}, si+1),
+        React.createElement("button", {
+          onClick: () => updSet(sess.id, ei, si, 'type', isSecs ? 'reps' : 'secs'),
+          style: {fontSize:'10px',padding:'5px 6px',borderRadius:'8px',cursor:'pointer',border:'none',
+                  background: isSecs ? C.orangeBg : 'rgba(255,255,255,0.06)',
+                  color: isSecs ? C.orange : C.mid, fontFamily:sans, flexShrink:0, whiteSpace:'nowrap'}
+        }, isSecs ? '⏱초' : '🏋횟수'),
+        isSecs
+          ? React.createElement("div", {style:{display:'flex',alignItems:'center',gap:'4px',flex:1,minWidth:0}},
+              React.createElement("input", {
+                type:"number", inputMode:"numeric", placeholder:"0", value:ss.reps,
+                onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
+                style: inp({padding:'7px 8px',textAlign:'center',fontFamily:mono,fontSize:'14px',flex:1})
+              }),
+              React.createElement("span", {style:{color:C.dim,fontSize:'12px',flexShrink:0}}, '초')
+            )
+          : React.createElement("div", {style:{display:'flex',alignItems:'center',gap:'3px',flex:1,minWidth:0}},
+              React.createElement("input", {
+                type:"number", inputMode:"decimal", placeholder:"0", value:ss.weight,
+                onChange: e => updSet(sess.id, ei, si, 'weight', e.target.value),
+                style: inp({padding:'7px 5px',textAlign:'center',fontFamily:mono,fontSize:'14px',flex:1})
+              }),
+              React.createElement("span", {style:{color:C.dim,fontSize:'11px',flexShrink:0}}, 'kg×'),
+              React.createElement("input", {
+                type:"number", inputMode:"numeric", placeholder:"0", value:ss.reps,
+                onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
+                style: inp({padding:'7px 5px',textAlign:'center',fontFamily:mono,fontSize:'14px',flex:1})
+              }),
+              React.createElement("span", {style:{color:C.dim,fontSize:'11px',flexShrink:0}}, '회')
+            ),
+        React.createElement("div", {style:{display:'flex',gap:'2px',flexShrink:0}},
+          [['','양'],['L','왼'],['R','오']].map(([val,label]) =>
+            React.createElement("button", {
+              key: val,
+              onClick: () => updSet(sess.id, ei, si, 'side', ss.side===val && val!=='' ? '' : val),
+              style: {fontSize:'9px',padding:'5px 3px',borderRadius:'5px',border:'none',cursor:'pointer',width:'22px',
+                      background: ss.side===val ? sideColors[val][0] : 'rgba(255,255,255,0.04)',
+                      color: ss.side===val ? sideColors[val][1] : C.dim}
+            }, label)
           )
-        : /*#__PURE__*/React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: '4px', flex: 1 } },
-            /*#__PURE__*/React.createElement("input", {
-              type: "number", inputMode: "decimal", placeholder: "0",
-              value: ss.weight,
-              onChange: e => updSet(sess.id, ei, si, 'weight', e.target.value),
-              style: inp({ padding: '7px 6px', textAlign: 'center', fontFamily: mono, fontSize: '14px', flex: 1 })
-            }),
-            /*#__PURE__*/React.createElement("span", { style: { color: C.dim, fontSize: '11px', flexShrink: 0 } }, 'kg'),
-            /*#__PURE__*/React.createElement("span", { style: { color: 'rgba(255,255,255,0.15)', fontSize: '12px', flexShrink: 0 } }, '×'),
-            /*#__PURE__*/React.createElement("input", {
-              type: "number", inputMode: "numeric", placeholder: "0",
-              value: ss.reps,
-              onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
-              style: inp({ padding: '7px 6px', textAlign: 'center', fontFamily: mono, fontSize: '14px', flex: 1 })
-            }),
-            /*#__PURE__*/React.createElement("span", { style: { color: C.dim, fontSize: '11px', flexShrink: 0 } }, '회')
-          ),
-      /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: '2px', flexShrink: 0 } },
-        [['', '양'], ['L', '왼'], ['R', '오']].map(([val, label]) =>
-          /*#__PURE__*/React.createElement("button", {
-            key: val,
-            onClick: () => updSet(sess.id, ei, si, 'side', ss.side === val && val !== '' ? '' : val),
-            style: {
-              fontSize: '9px', padding: '5px 4px', borderRadius: '5px', border: 'none', cursor: 'pointer', width: '22px',
-              background: ss.side === val ? (val === 'L' ? 'rgba(91,156,246,0.3)' : val === 'R' ? 'rgba(255,107,157,0.3)' : 'rgba(255,255,255,0.15)') : 'rgba(255,255,255,0.04)',
-              color: ss.side === val ? (val === 'L' ? '#5B9CF6' : val === 'R' ? '#FF6B9D' : '#ccc') : C.dim
-            }
-          }, label)
-        )
-      ),
-      /*#__PURE__*/React.createElement("button", {
-        onClick: () => rmSet(sess.id, ei, si),
-        style: { background: 'none', border: 'none', color: C.dim, cursor: 'pointer', fontSize: '16px', flexShrink: 0 }
-      }, "\u2212")
+        ),
+        React.createElement("button", {
+          onClick: () => rmSet(sess.id, ei, si),
+          style: {background:'none',border:'none',color:C.dim,cursor:'pointer',fontSize:'16px',flexShrink:0,padding:'0 2px'}
+        }, "\u2212")
       );
     }),
-    /*#__PURE__*/React.createElement("button", {
+    React.createElement("button", {
       onClick: () => addSet(sess.id, ei),
       style: {
-        background: 'transparent',
-        border: `1px dashed rgba(255,255,255,0.1)`,
-        borderRadius: '7px',
-        color: C.mid,
-        cursor: 'pointer',
-        padding: '6px',
-        fontSize: '12px',
-        width: '100%',
-        marginTop: '3px',
-        fontFamily: sans
+        background: 'transparent', border: '1px dashed rgba(255,255,255,0.1)',
+        borderRadius: '7px', color: C.mid, cursor: 'pointer',
+        padding: '6px', fontSize: '12px', width: '100%', marginTop: '3px', fontFamily: sans
       }
     }, "+ \uC138\uD2B8 \uCD94\uAC00")), ex.kind === 'cardio' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -2805,7 +2788,7 @@ function FitLog() {
           fontFamily: mono,
           paddingLeft: '10px'
         }
-      }, "\uC138\uD2B8", k + 1, ": ", ss.type === 'secs' ? (ss.reps || '0') + '초' + (ss.side === 'L' ? ' (왼)' : ss.side === 'R' ? ' (오)' : '') : ss.weight + "kg × " + ss.reps + "회"))), ex.kind === 'cardio' && /*#__PURE__*/React.createElement("div", {
+      }, "\uC138\uD2B8", k + 1, ": ", ss.weight, "kg \xD7 ", ss.reps, "\uD68C"))), ex.kind === 'cardio' && /*#__PURE__*/React.createElement("div", {
         style: {
           display: 'flex',
           gap: '8px',
@@ -4012,8 +3995,6 @@ function FitLog() {
     }
   })))));
 }
-window._mountFitLog = function() {
-  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(FitLog, null));
-};</script>
+ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(FitLog, null));</script>
 </body>
 </html>
