@@ -80,12 +80,15 @@ const auth = firebase.auth();
 window._db = firebase.firestore();
 window._uid = null;
 
+const provider = new firebase.auth.GoogleAuthProvider();
+
 function signIn() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(e => {
-    document.getElementById('login-err').textContent = '로그인 실패: ' + e.message;
-  });
+  auth.signInWithRedirect(provider);
 }
+
+auth.getRedirectResult().catch(e => {
+  console.error('Redirect error:', e);
+});
 
 auth.onAuthStateChanged(user => {
   if (user) {
@@ -97,7 +100,6 @@ auth.onAuthStateChanged(user => {
       window._mountFitLog();
     }
   } else {
-    window._uid = null;
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('root').style.display = 'none';
   }
