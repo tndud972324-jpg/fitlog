@@ -14,16 +14,16 @@
     #login-screen {
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; min-height: 100vh; background: #09090F;
-      gap: 14px; padding: 24px;
+      gap: 12px; padding: 24px;
       padding-top: calc(40px + env(safe-area-inset-top));
     }
     #login-screen h1 {
-      font-size: 38px; font-weight: 900;
-      font-family: "DM Mono", monospace; letter-spacing: -1px; margin-bottom: 4px;
+      font-size: 36px; font-weight: 900;
+      font-family: "DM Mono", monospace; letter-spacing: -1px; margin-bottom: 2px;
     }
     #login-screen h1 span:first-child { color: #BBFF00; }
     #login-screen h1 span:last-child { color: white; }
-    .login-sub { color: #555; font-size: 13px; margin-bottom: 8px; }
+    #title-sub { color: #555; font-size: 13px; margin-bottom: 6px; }
     .auth-input {
       width: 100%; max-width: 300px; background: #111119;
       border: 1px solid #222; border-radius: 12px;
@@ -34,41 +34,46 @@
     .auth-btn {
       width: 100%; max-width: 300px; border: none; border-radius: 12px;
       padding: 14px; font-size: 15px; font-weight: 700;
-      cursor: pointer; font-family: "Noto Sans KR", sans-serif;
+      cursor: pointer; font-family: "Noto Sans KR", sans-serif; margin-top: 4px;
     }
     .btn-primary { background: #BBFF00; color: #000; }
-    .btn-secondary { background: #1a1a2e; color: #aaa; border: 1px solid #222; }
-    .btn-text { background: none; color: #555; font-size: 12px; padding: 8px; max-width: 300px; width: 100%; border: none; cursor: pointer; }
-    #auth-err { color: #FF6B6B; font-size: 12px; max-width: 300px; text-align: center; min-height: 18px; }
+    .btn-secondary { background: #111119; color: #aaa; border: 1px solid #222; }
+    .btn-text { background: none; color: #444; font-size: 12px; padding: 6px; max-width: 300px; width: 100%; border: none; cursor: pointer; font-family: "Noto Sans KR", sans-serif; }
+    #auth-err { color: #FF6B6B; font-size: 12px; max-width: 300px; text-align: center; min-height: 16px; }
     #user-bar {
       display: none; position: fixed; top: 0; right: 0; z-index: 9999;
       padding: 6px 10px; padding-top: calc(6px + env(safe-area-inset-top));
-      display: flex; align-items: center; gap: 6px;
+      align-items: center; gap: 6px;
     }
     #user-email { color: #444; font-size: 10px; }
     #user-bar button {
       background: rgba(255,255,255,0.06); border: none; color: #555;
       font-size: 10px; padding: 3px 7px; border-radius: 5px; cursor: pointer;
     }
-    .divider { width: 100%; max-width: 300px; border: none; border-top: 1px solid #1a1a1a; margin: 4px 0; }
+    .divider { width: 100%; max-width: 300px; border: none; border-top: 1px solid #1a1a1a; margin: 2px 0; }
   </style>
 </head>
 <body>
 <div id="login-screen">
   <h1><span>FIT</span><span>LOG</span></h1>
-  <p class="login-sub">기록이 곧 성장이다</p>
+  <p id="title-sub">로그인</p>
   <input id="email" class="auth-input" type="email" placeholder="이메일" autocomplete="email"/>
-  <input id="pw" class="auth-input" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="current-password"/>
+  <div id="pw-wrap" style="width:100%;max-width:300px">
+    <input id="pw" class="auth-input" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" style="width:100%"/>
+  </div>
+  <div id="pw2-wrap" style="display:none;width:100%;max-width:300px">
+    <input id="pw2" class="auth-input" type="password" placeholder="비밀번호 확인" autocomplete="new-password" style="width:100%"/>
+  </div>
   <div id="auth-err"></div>
-  <button class="auth-btn btn-primary" onclick="signIn()">로그인</button>
-  <button class="auth-btn btn-secondary" onclick="signUp()">처음이에요 — 회원가입</button>
+  <button id="btn-main" class="auth-btn btn-primary" onclick="handleMain()">로그인</button>
+  <button id="btn-switch" class="auth-btn btn-secondary" onclick="setMode(_mode==='login'?'signup':'login')">처음이에요 — 회원가입</button>
   <hr class="divider"/>
-  <button class="btn-text" onclick="resetPw()">비밀번호를 잊었어요</button>
+  <button id="btn-reset" class="btn-text" onclick="setMode('reset')">비밀번호를 잊었어요</button>
 </div>
 
 <div id="user-bar" style="display:none">
   <span id="user-email"></span>
-  <button onclick="signOut()">로그아웃</button>
+  <button onclick="auth.signOut()">로그아웃</button>
 </div>
 <div id="root" style="display:none"></div>
 
@@ -88,13 +93,64 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 window._db = firebase.firestore();
 window._uid = null;
+let _mode = 'login'; // login | signup | reset
+
+function setMode(m) {
+  _mode = m;
+  const err = document.getElementById('auth-err');
+  err.textContent = '';
+  err.style.color = '#FF6B6B';
+  document.getElementById('pw2-wrap').style.display = m === 'signup' ? 'block' : 'none';
+  document.getElementById('btn-main').textContent = m === 'login' ? '로그인' : m === 'signup' ? '회원가입' : '재설정 링크 보내기';
+  document.getElementById('btn-switch').textContent = m === 'login' ? '처음이에요 — 회원가입' : '이미 계정이 있어요 — 로그인';
+  document.getElementById('btn-reset').style.display = m === 'login' ? 'block' : 'none';
+  document.getElementById('pw-wrap').style.display = m === 'reset' ? 'none' : 'block';
+  document.getElementById('title-sub').textContent = m === 'login' ? '로그인' : m === 'signup' ? '회원가입' : '비밀번호 재설정';
+}
+
+function handleMain() {
+  const email = document.getElementById('email').value.trim();
+  const pw = document.getElementById('pw').value;
+  const pw2 = document.getElementById('pw2').value;
+  const err = document.getElementById('auth-err');
+  err.style.color = '#FF6B6B';
+
+  if (_mode === 'reset') {
+    if (!email) { err.textContent = '이메일을 입력해주세요'; return; }
+    auth.sendPasswordResetEmail(email)
+      .then(() => { err.style.color = '#BBFF00'; err.textContent = '✓ ' + email + '로 재설정 링크를 보냈어요!'; })
+      .catch(e => { err.textContent = '오류: ' + e.message; });
+    return;
+  }
+  if (!email || !pw) { err.textContent = '이메일과 비밀번호를 입력해주세요'; return; }
+  if (_mode === 'signup') {
+    if (pw.length < 6) { err.textContent = '비밀번호는 6자 이상이어야 해요'; return; }
+    if (pw !== pw2) { err.textContent = '비밀번호가 일치하지 않아요'; return; }
+    err.textContent = '가입 중...';
+    auth.createUserWithEmailAndPassword(email, pw)
+      .catch(e => {
+        if (e.code === 'auth/email-already-in-use') err.textContent = '이미 사용 중인 이메일이에요';
+        else err.textContent = '오류: ' + e.message;
+      });
+  } else {
+    err.textContent = '로그인 중...';
+    auth.signInWithEmailAndPassword(email, pw)
+      .catch(e => {
+        if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential')
+          err.textContent = '비밀번호가 틀렸어요';
+        else if (e.code === 'auth/user-not-found')
+          err.textContent = '등록되지 않은 이메일이에요';
+        else err.textContent = '오류: ' + e.message;
+      });
+  }
+}
 
 function showApp(user) {
   window._uid = user.uid;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('root').style.display = 'block';
   document.getElementById('user-email').textContent = user.email;
-  document.getElementById('user-bar').style.display = 'block';
+  document.getElementById('user-bar').style.display = 'flex';
   if (!window._mounted) {
     window._mounted = true;
     if (window._mountFitLog) window._mountFitLog();
@@ -112,52 +168,9 @@ auth.onAuthStateChanged(user => {
   if (user) { showApp(user); } else { showLogin(); }
 });
 
-function signUp() {
-  const email = document.getElementById('email').value.trim();
-  const pw = document.getElementById('pw').value;
-  const err = document.getElementById('auth-err');
-  if (!email || !pw) { err.textContent = '이메일과 비밀번호를 입력해주세요'; return; }
-  if (pw.length < 6) { err.textContent = '비밀번호는 6자 이상이어야 해요'; return; }
-  err.textContent = '처리 중...';
-  auth.createUserWithEmailAndPassword(email, pw)
-    .catch(e => {
-      if (e.code === 'auth/email-already-in-use') err.textContent = '이미 사용 중인 이메일이에요. 로그인해주세요';
-      else err.textContent = '오류: ' + e.message;
-    });
-}
-
-function signIn() {
-  const email = document.getElementById('email').value.trim();
-  const pw = document.getElementById('pw').value;
-  const err = document.getElementById('auth-err');
-  if (!email || !pw) { err.textContent = '이메일과 비밀번호를 입력해주세요'; return; }
-  err.textContent = '로그인 중...';
-  auth.signInWithEmailAndPassword(email, pw)
-    .catch(e => {
-      if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') 
-        err.textContent = '비밀번호가 틀렸어요';
-      else if (e.code === 'auth/user-not-found')
-        err.textContent = '등록되지 않은 이메일이에요. 회원가입해주세요';
-      else err.textContent = '오류: ' + e.message;
-    });
-}
-
-function resetPw() {
-  const email = document.getElementById('email').value.trim();
-  const err = document.getElementById('auth-err');
-  if (!email) { err.textContent = '이메일을 입력하면 재설정 링크를 보내드려요'; return; }
-  auth.sendPasswordResetEmail(email)
-    .then(() => { err.style.color = '#BBFF00'; err.textContent = '✓ ' + email + '로 재설정 링크를 보냈어요!'; })
-    .catch(e => { err.style.color = '#FF6B6B'; err.textContent = '오류: ' + e.message; });
-}
-
-function signOut() {
-  auth.signOut();
-}
-
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
-    signIn();
+    handleMain();
   }
 });
 </script>
