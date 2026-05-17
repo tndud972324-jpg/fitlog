@@ -950,7 +950,9 @@ function FitLog() {
         ...ex,
         sets: [...ex.sets, {
           weight: '',
-          reps: ''
+          reps: '',
+          type: 'reps',
+          side: ''
         }]
       })
     })
@@ -994,7 +996,9 @@ function FitLog() {
       name: name.trim(),
       sets: [{
         weight: '',
-        reps: ''
+        reps: '',
+        type: 'reps',
+        side: ''
       }]
     });
   };
@@ -1837,64 +1841,77 @@ function FitLog() {
         gap: '5px',
         marginBottom: '5px'
       }
-    }, ['#', 'kg', '회', ''].map((h, i) => /*#__PURE__*/React.createElement("div", {
+    }, ['#', '타입', '내용', '방향', ''].map((h, i) => /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
         fontSize: '9px',
         color: C.dim,
         textAlign: 'center'
       }
-    }, h))), ex.sets.map((ss, si) => /*#__PURE__*/React.createElement("div", {
-      key: si,
-      style: {
-        display: 'grid',
-        gridTemplateColumns: '22px 1fr 1fr 22px',
-        gap: '5px',
-        alignItems: 'center',
-        marginBottom: '5px'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: '11px',
-        color: C.dim,
-        textAlign: 'center',
-        fontFamily: mono
-      }
-    }, si + 1), /*#__PURE__*/React.createElement("input", {
-      type: "number",
-      inputMode: "decimal",
-      placeholder: "0",
-      value: ss.weight,
-      onChange: e => updSet(sess.id, ei, si, 'weight', e.target.value),
-      style: inp({
-        padding: '8px 6px',
-        textAlign: 'center',
-        fontFamily: mono,
-        fontSize: '13px'
-      })
-    }), /*#__PURE__*/React.createElement("input", {
-      type: "number",
-      inputMode: "numeric",
-      placeholder: "0",
-      value: ss.reps,
-      onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
-      style: inp({
-        padding: '8px 6px',
-        textAlign: 'center',
-        fontFamily: mono,
-        fontSize: '13px'
-      })
-    }), /*#__PURE__*/React.createElement("button", {
-      onClick: () => rmSet(sess.id, ei, si),
-      style: {
-        background: 'none',
-        border: 'none',
-        color: C.dim,
-        cursor: 'pointer',
-        fontSize: '16px',
-        textAlign: 'center'
-      }
-    }, "\u2212"))), /*#__PURE__*/React.createElement("button", {
+    }, h))),
+    ex.sets.map((ss, si) => {
+      const isSecs = ss.type === 'secs';
+      return /*#__PURE__*/React.createElement("div", {
+        key: si,
+        style: { marginBottom: '6px' }
+      },
+      /*#__PURE__*/React.createElement("div", {
+        style: { display: 'grid', gridTemplateColumns: '22px 52px 1fr 60px 22px', gap: '5px', alignItems: 'center' }
+      },
+      /*#__PURE__*/React.createElement("div", {
+        style: { fontSize: '11px', color: C.dim, textAlign: 'center', fontFamily: mono }
+      }, si + 1),
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => updSet(sess.id, ei, si, 'type', isSecs ? 'reps' : 'secs'),
+        style: {
+          fontSize: '11px', padding: '6px 4px', borderRadius: '8px', cursor: 'pointer', border: 'none',
+          background: isSecs ? C.orangeBg : 'rgba(255,255,255,0.06)',
+          color: isSecs ? C.orange : C.mid, fontFamily: sans
+        }
+      }, isSecs ? '⏱ 초' : '🏋 횟수'),
+      isSecs
+        ? /*#__PURE__*/React.createElement("input", {
+            type: "number", inputMode: "numeric", placeholder: "0",
+            value: ss.reps,
+            onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
+            style: inp({ padding: '8px 6px', textAlign: 'center', fontFamily: mono, fontSize: '13px' })
+          })
+        : /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: '4px' } },
+            /*#__PURE__*/React.createElement("input", {
+              type: "number", inputMode: "decimal", placeholder: "0",
+              value: ss.weight,
+              onChange: e => updSet(sess.id, ei, si, 'weight', e.target.value),
+              style: inp({ padding: '8px 4px', textAlign: 'center', fontFamily: mono, fontSize: '13px', flex: 1 })
+            }),
+            /*#__PURE__*/React.createElement("span", { style: { color: C.dim, fontSize: '11px', alignSelf: 'center' } }, '×'),
+            /*#__PURE__*/React.createElement("input", {
+              type: "number", inputMode: "numeric", placeholder: "0",
+              value: ss.reps,
+              onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
+              style: inp({ padding: '8px 4px', textAlign: 'center', fontFamily: mono, fontSize: '13px', flex: 1 })
+            })
+          ),
+      /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: '2px' } },
+        [['', '양'], ['L', '왼'], ['R', '오']].map(([val, label]) =>
+          /*#__PURE__*/React.createElement("button", {
+            key: val,
+            onClick: () => updSet(sess.id, ei, si, 'side', ss.side === val && val !== '' ? '' : val),
+            style: {
+              flex: 1, fontSize: '9px', padding: '4px 1px', borderRadius: '5px',
+              border: 'none', cursor: 'pointer',
+              background: ss.side === val ? (val === 'L' ? 'rgba(91,156,246,0.25)' : val === 'R' ? 'rgba(255,107,157,0.25)' : 'rgba(255,255,255,0.1)') : 'rgba(255,255,255,0.04)',
+              color: ss.side === val ? (val === 'L' ? '#5B9CF6' : val === 'R' ? '#FF6B9D' : '#aaa') : C.dim
+            }
+          }, label)
+        )
+      ),
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => rmSet(sess.id, ei, si),
+        style: { background: 'none', border: 'none', color: C.dim, cursor: 'pointer', fontSize: '16px', textAlign: 'center' }
+      }, "\u2212")
+      ));
+    }),
+    /*#__PURE__*/React.createElement("button", {
       onClick: () => addSet(sess.id, ei),
       style: {
         background: 'transparent',
@@ -2795,7 +2812,7 @@ function FitLog() {
           fontFamily: mono,
           paddingLeft: '10px'
         }
-      }, "\uC138\uD2B8", k + 1, ": ", ss.weight, "kg \xD7 ", ss.reps, "\uD68C"))), ex.kind === 'cardio' && /*#__PURE__*/React.createElement("div", {
+      }, "\uC138\uD2B8", k + 1, ": ", ss.type === 'secs' ? (ss.reps || '0') + '초' + (ss.side === 'L' ? ' (왼)' : ss.side === 'R' ? ' (오)' : '') : ss.weight + "kg × " + ss.reps + "회"))), ex.kind === 'cardio' && /*#__PURE__*/React.createElement("div", {
         style: {
           display: 'flex',
           gap: '8px',
