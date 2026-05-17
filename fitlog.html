@@ -530,7 +530,13 @@ const calcPace = (km, min) => {
 };
 
 // ── 새로 추가된 헬퍼
-const setUnit = (st) => st === 'seconds' ? '초' : st === 'distance' ? 'm' : '회';
+const setUnit = (st) => st === 'seconds' ? '초' : '회';
+const calcPaceFromSpeed = (kmh) => {
+  const s = parseFloat(kmh);
+  if (!s || s <= 0) return null;
+  const tot = 60/s, pm = Math.floor(tot), ps = Math.round((tot-pm)*60);
+  return `${pm}'${String(ps).padStart(2,'0')}"`;
+};
 const fmtSetVal = (ss, setType) => {
   const u = setUnit(setType || 'reps');
   const side = (ss.side && ss.side !== 'both') ? ` (${ss.side === 'left' ? '좌' : '우'})` : '';
@@ -819,7 +825,7 @@ function FitLog() {
                   ex.kind==='strength'&&e("div",null,
                     // 세트 타입 선택기 (NEW)
                     e("div",{style:{display:'flex',gap:'4px',marginBottom:'8px'}},
-                      [['reps','횟수'],['seconds','초'],['distance','거리']].map(([type,label])=>
+                      [['reps','횟수'],['seconds','초']].map(([type,label])=>
                         e("button",{key:type,onClick:()=>updEx(sess.id,ei,{setType:type}),style:{
                           background:(ex.setType||'reps')===type?C.accentBg:'rgba(255,255,255,0.04)',
                           border:`1px solid ${(ex.setType||'reps')===type?C.accentDim:C.border}`,
@@ -845,12 +851,18 @@ function FitLog() {
                     e("button",{onClick:()=>addSet(sess.id,ei),style:{background:'transparent',border:`1px dashed rgba(255,255,255,0.1)`,borderRadius:'7px',color:C.mid,cursor:'pointer',padding:'6px',fontSize:'12px',width:'100%',marginTop:'3px',fontFamily:sans}},"+ 세트 추가")),
                   // ── 유산소 운동
                   ex.kind==='cardio'&&e("div",null,
-                    e("div",{style:{display:'flex',gap:'8px',alignItems:'flex-end'}},
-                      e("div",{style:{flex:1}},e("div",{style:{fontSize:'10px',color:C.dim,marginBottom:'4px'}},"거리 (km)"),e("input",{type:"number",inputMode:"decimal",placeholder:"0.0",value:ex.distanceKm,onChange:ev=>updEx(sess.id,ei,{distanceKm:ev.target.value}),style:inp({padding:'9px 10px',fontFamily:mono,fontSize:'14px'})})),
-                      e("div",{style:{flex:1}},e("div",{style:{fontSize:'10px',color:C.dim,marginBottom:'4px'}},"시간 (분)"),e("input",{type:"number",inputMode:"numeric",placeholder:"0",value:ex.durationMin,onChange:ev=>updEx(sess.id,ei,{durationMin:ev.target.value}),style:inp({padding:'9px 10px',fontFamily:mono,fontSize:'14px'})}))),
-                    calcPace(ex.distanceKm,ex.durationMin)&&e("div",{style:{marginTop:'8px',display:'flex',alignItems:'center',gap:'8px'}},
-                      e("span",{style:{fontSize:'11px',color:C.dim}},"페이스"),
-                      e("span",{style:{fontSize:'16px',fontWeight:'900',color:C.orange,fontFamily:mono}},calcPace(ex.distanceKm,ex.durationMin),e("span",{style:{fontSize:'11px',fontWeight:'400',color:C.dim}},"/km")))))),
+                    e("div",{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px',marginBottom:'8px'}},
+                      e("div",null,e("div",{style:{fontSize:'10px',color:C.dim,marginBottom:'4px'}},"거리 (km)"),e("input",{type:"number",inputMode:"decimal",placeholder:"0.0",value:ex.distanceKm,onChange:ev=>updEx(sess.id,ei,{distanceKm:ev.target.value}),style:inp({padding:'9px 10px',fontFamily:mono,fontSize:'14px'})})),
+                      e("div",null,e("div",{style:{fontSize:'10px',color:C.dim,marginBottom:'4px'}},"시간 (분)"),e("input",{type:"number",inputMode:"numeric",placeholder:"0",value:ex.durationMin,onChange:ev=>updEx(sess.id,ei,{durationMin:ev.target.value}),style:inp({padding:'9px 10px',fontFamily:mono,fontSize:'14px'})})),
+                      e("div",null,e("div",{style:{fontSize:'10px',color:C.dim,marginBottom:'4px'}},"속도 (km/h)"),e("input",{type:"number",inputMode:"decimal",placeholder:"0.0",value:ex.speedKmh,onChange:ev=>updEx(sess.id,ei,{speedKmh:ev.target.value}),style:inp({padding:'9px 10px',fontFamily:mono,fontSize:'14px'})})),
+                      e("div",null,e("div",{style:{fontSize:'10px',color:C.dim,marginBottom:'4px'}},"경사도 (%)"),e("input",{type:"number",inputMode:"decimal",placeholder:"0",value:ex.inclinePct,onChange:ev=>updEx(sess.id,ei,{inclinePct:ev.target.value}),style:inp({padding:'9px 10px',fontFamily:mono,fontSize:'14px'})}))),
+                    e("div",{style:{display:'flex',gap:'16px',flexWrap:'wrap'}},
+                      calcPace(ex.distanceKm,ex.durationMin)&&e("div",{style:{display:'flex',alignItems:'center',gap:'6px'}},
+                        e("span",{style:{fontSize:'11px',color:C.dim}},"페이스"),
+                        e("span",{style:{fontSize:'15px',fontWeight:'900',color:C.orange,fontFamily:mono}},calcPace(ex.distanceKm,ex.durationMin),e("span",{style:{fontSize:'11px',fontWeight:'400',color:C.dim}},"/km"))),
+                      !calcPace(ex.distanceKm,ex.durationMin)&&calcPaceFromSpeed(ex.speedKmh)&&e("div",{style:{display:'flex',alignItems:'center',gap:'6px'}},
+                        e("span",{style:{fontSize:'11px',color:C.dim}},"페이스"),
+                        e("span",{style:{fontSize:'15px',fontWeight:'900',color:C.orange,fontFamily:mono}},calcPaceFromSpeed(ex.speedKmh),e("span",{style:{fontSize:'11px',fontWeight:'400',color:C.dim}},"/km"))))))),
               // 피커 — 부위 선택
               isOpen&&picker.mode==='strength-part'&&e("div",{style:{background:'rgba(255,255,255,0.03)',borderRadius:'10px',padding:'12px',border:`1px solid ${C.border}`,marginBottom:'10px'}},
                 e("div",{style:{fontSize:'11px',color:C.mid,marginBottom:'10px'}},"부위 선택"),
@@ -876,10 +888,10 @@ function FitLog() {
                 e("div",{style:{fontSize:'11px',color:C.orange,fontWeight:'700',letterSpacing:'.5px',marginBottom:'10px'}},"유산소 종목"),
                 e("div",{style:{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'10px'}},
                   CARDIO_LIST.map(name=>
-                    e("button",{key:name,onClick:()=>addEx(sess.id,{kind:'cardio',name,distanceKm:'',durationMin:''}),style:{background:C.orangeBg,border:`1px solid ${C.orangeDim}`,borderRadius:'18px',color:C.text,cursor:'pointer',padding:'6px 12px',fontSize:'12px',fontFamily:sans}},name))),
+                    e("button",{key:name,onClick:()=>addEx(sess.id,{kind:'cardio',name,distanceKm:'',durationMin:'',speedKmh:'',inclinePct:''}),style:{background:C.orangeBg,border:`1px solid ${C.orangeDim}`,borderRadius:'18px',color:C.text,cursor:'pointer',padding:'6px 12px',fontSize:'12px',fontFamily:sans}},name))),
                 e("div",{style:{display:'flex',gap:'6px'}},
                   e("input",{type:"text",placeholder:"직접 입력",value:picker.custom,onChange:ev=>setPicker(p=>({...p,custom:ev.target.value})),style:inp({flex:1,padding:'8px 10px',fontSize:'13px'})}),
-                  e("button",{onClick:()=>picker.custom.trim()&&addEx(sess.id,{kind:'cardio',name:picker.custom.trim(),distanceKm:'',durationMin:''}),style:{background:C.orange,border:'none',borderRadius:'8px',color:'#000',cursor:'pointer',padding:'8px 12px',fontSize:'12px',fontWeight:'800',fontFamily:sans,whiteSpace:'nowrap'}},"추가")),
+                  e("button",{onClick:()=>picker.custom.trim()&&addEx(sess.id,{kind:'cardio',name:picker.custom.trim(),distanceKm:'',durationMin:'',speedKmh:'',inclinePct:''}),style:{background:C.orange,border:'none',borderRadius:'8px',color:'#000',cursor:'pointer',padding:'8px 12px',fontSize:'12px',fontWeight:'800',fontFamily:sans,whiteSpace:'nowrap'}},"추가")),
                 e("button",{onClick:()=>setPicker(p=>({...p,sessId:null,mode:'none'})),style:{background:'none',border:'none',color:C.dim,cursor:'pointer',fontSize:'12px',fontFamily:sans,marginTop:'8px'}},"취소")),
               // 추가 버튼
               !isOpen&&e("div",{style:{display:'flex',gap:'8px',marginBottom:'10px'}},
@@ -930,7 +942,7 @@ function FitLog() {
                       ex.kind==='strength'&&e("div",{style:{display:'flex',alignItems:'center',gap:'5px',color:C.mid}},
                         e(Dot,{color:PART_COLORS[ex.bodyPart]||C.mid,size:5}),
                         e("span",{style:{color:PART_COLORS[ex.bodyPart]||C.accent,fontWeight:'600'}},ex.bodyPart)," — ",ex.name," ",e("span",{style:{fontFamily:mono}},"(",ex.sets.length,"세트)")),
-                      ex.kind==='cardio'&&e("div",{style:{color:C.orange}},"🏃 ",ex.name,ex.distanceKm&&` ${ex.distanceKm}km`,ex.durationMin&&` / ${ex.durationMin}분`,calcPace(ex.distanceKm,ex.durationMin)&&` (${calcPace(ex.distanceKm,ex.durationMin)}/km)`))));
+                      ex.kind==='cardio'&&e("div",{style:{color:C.orange}},"🏃 ",ex.name,ex.distanceKm&&` ${ex.distanceKm}km`,ex.durationMin&&` / ${ex.durationMin}분`,ex.speedKmh&&` / ${ex.speedKmh}km/h`,ex.inclinePct&&` / 경사 ${ex.inclinePct}%`,(calcPace(ex.distanceKm,ex.durationMin)||calcPaceFromSpeed(ex.speedKmh))&&` (${calcPace(ex.distanceKm,ex.durationMin)||calcPaceFromSpeed(ex.speedKmh)}/km)`))));
               }))
             :e("div",{style:{color:C.dim,fontSize:'14px'}},"이 날은 기록이 없어요"));
         })()),
@@ -971,11 +983,14 @@ function FitLog() {
                           ...ex.sets.map((ss,k)=>
                             e("div",{key:k,style:{fontSize:'12px',color:C.mid,fontFamily:mono,paddingLeft:'10px'}},
                               "세트",k+1,": ",fmtSetVal(ss,ex.setType)))),
-                        ex.kind==='cardio'&&e("div",{style:{display:'flex',gap:'8px',alignItems:'center',fontSize:'12px',color:C.orange,flexWrap:'wrap'}},
-                          "🏃 ",e("span",{style:{fontWeight:'700'}},ex.name),
-                          ex.distanceKm&&e("span",{style:{fontFamily:mono}},ex.distanceKm,"km"),
-                          ex.durationMin&&e("span",{style:{color:C.mid,fontFamily:mono}},ex.durationMin,"분"),
-                          calcPace(ex.distanceKm,ex.durationMin)&&e("span",{style:{color:C.dim,fontFamily:mono}},calcPace(ex.distanceKm,ex.durationMin),"/km")))),
+                        ex.kind==='cardio'&&e("div",{style:{fontSize:'12px',color:C.orange,flexWrap:'wrap'}},
+                          e("div",{style:{display:'flex',gap:'8px',alignItems:'center',flexWrap:'wrap'}},
+                            "🏃 ",e("span",{style:{fontWeight:'700'}},ex.name),
+                            ex.distanceKm&&e("span",{style:{fontFamily:mono}},ex.distanceKm,"km"),
+                            ex.durationMin&&e("span",{style:{color:C.mid,fontFamily:mono}},ex.durationMin,"분"),
+                            ex.speedKmh&&e("span",{style:{color:C.mid,fontFamily:mono}},ex.speedKmh,"km/h"),
+                            ex.inclinePct&&e("span",{style:{color:C.mid,fontFamily:mono}},"경사 ",ex.inclinePct,"%"),
+                            (calcPace(ex.distanceKm,ex.durationMin)||calcPaceFromSpeed(ex.speedKmh))&&e("span",{style:{color:C.dim,fontFamily:mono}},"(",calcPace(ex.distanceKm,ex.durationMin)||calcPaceFromSpeed(ex.speedKmh),"/km)"))))),
                     sess.summary&&e("div",{style:{fontSize:'12px',color:C.accent,fontStyle:'italic',marginTop:'4px'}},'"',sess.summary,'"'));
                 }),
                 e("button",{onClick:()=>loadDay(r.date),style:{background:'rgba(255,255,255,0.05)',border:`1px solid ${C.border}`,borderRadius:'10px',color:C.mid,cursor:'pointer',padding:'10px',fontSize:'13px',fontFamily:sans}},"수정하기"))));
