@@ -1841,75 +1841,68 @@ function FitLog() {
         gap: '5px',
         marginBottom: '5px'
       }
-    }, ['#', '타입', '내용', '방향', ''].map((h, i) => /*#__PURE__*/React.createElement("div", {
-      key: i,
-      style: {
-        fontSize: '9px',
-        color: C.dim,
-        textAlign: 'center'
-      }
-    }, h))),
-    ex.sets.map((ss, si) => {
+    }, ex.sets.map((ss, si) => {
       const isSecs = ss.type === 'secs';
       return /*#__PURE__*/React.createElement("div", {
         key: si,
-        style: { marginBottom: '6px' }
+        style: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }
       },
-      /*#__PURE__*/React.createElement("div", {
-        style: { display: 'grid', gridTemplateColumns: '22px 52px 1fr 60px 22px', gap: '5px', alignItems: 'center' }
-      },
-      /*#__PURE__*/React.createElement("div", {
-        style: { fontSize: '11px', color: C.dim, textAlign: 'center', fontFamily: mono }
+      /*#__PURE__*/React.createElement("span", {
+        style: { fontSize: '11px', color: C.dim, width: '16px', textAlign: 'center', fontFamily: mono, flexShrink: 0 }
       }, si + 1),
       /*#__PURE__*/React.createElement("button", {
         onClick: () => updSet(sess.id, ei, si, 'type', isSecs ? 'reps' : 'secs'),
         style: {
-          fontSize: '11px', padding: '6px 4px', borderRadius: '8px', cursor: 'pointer', border: 'none',
+          fontSize: '11px', padding: '5px 7px', borderRadius: '8px', cursor: 'pointer', border: 'none',
           background: isSecs ? C.orangeBg : 'rgba(255,255,255,0.06)',
-          color: isSecs ? C.orange : C.mid, fontFamily: sans
+          color: isSecs ? C.orange : C.mid, fontFamily: sans, flexShrink: 0
         }
-      }, isSecs ? '⏱ 초' : '🏋 횟수'),
+      }, isSecs ? '⏱초' : '🏋횟수'),
       isSecs
-        ? /*#__PURE__*/React.createElement("input", {
-            type: "number", inputMode: "numeric", placeholder: "0",
-            value: ss.reps,
-            onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
-            style: inp({ padding: '8px 6px', textAlign: 'center', fontFamily: mono, fontSize: '13px' })
-          })
-        : /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: '4px' } },
-            /*#__PURE__*/React.createElement("input", {
-              type: "number", inputMode: "decimal", placeholder: "0",
-              value: ss.weight,
-              onChange: e => updSet(sess.id, ei, si, 'weight', e.target.value),
-              style: inp({ padding: '8px 4px', textAlign: 'center', fontFamily: mono, fontSize: '13px', flex: 1 })
-            }),
-            /*#__PURE__*/React.createElement("span", { style: { color: C.dim, fontSize: '11px', alignSelf: 'center' } }, '×'),
+        ? /*#__PURE__*/React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: '4px', flex: 1 } },
             /*#__PURE__*/React.createElement("input", {
               type: "number", inputMode: "numeric", placeholder: "0",
               value: ss.reps,
               onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
-              style: inp({ padding: '8px 4px', textAlign: 'center', fontFamily: mono, fontSize: '13px', flex: 1 })
-            })
+              style: inp({ padding: '7px 8px', textAlign: 'center', fontFamily: mono, fontSize: '14px', flex: 1 })
+            }),
+            /*#__PURE__*/React.createElement("span", { style: { color: C.dim, fontSize: '12px', flexShrink: 0 } }, '초')
+          )
+        : /*#__PURE__*/React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: '4px', flex: 1 } },
+            /*#__PURE__*/React.createElement("input", {
+              type: "number", inputMode: "decimal", placeholder: "0",
+              value: ss.weight,
+              onChange: e => updSet(sess.id, ei, si, 'weight', e.target.value),
+              style: inp({ padding: '7px 6px', textAlign: 'center', fontFamily: mono, fontSize: '14px', flex: 1 })
+            }),
+            /*#__PURE__*/React.createElement("span", { style: { color: C.dim, fontSize: '11px', flexShrink: 0 } }, 'kg'),
+            /*#__PURE__*/React.createElement("span", { style: { color: 'rgba(255,255,255,0.15)', fontSize: '12px', flexShrink: 0 } }, '×'),
+            /*#__PURE__*/React.createElement("input", {
+              type: "number", inputMode: "numeric", placeholder: "0",
+              value: ss.reps,
+              onChange: e => updSet(sess.id, ei, si, 'reps', e.target.value),
+              style: inp({ padding: '7px 6px', textAlign: 'center', fontFamily: mono, fontSize: '14px', flex: 1 })
+            }),
+            /*#__PURE__*/React.createElement("span", { style: { color: C.dim, fontSize: '11px', flexShrink: 0 } }, '회')
           ),
-      /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: '2px' } },
+      /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: '2px', flexShrink: 0 } },
         [['', '양'], ['L', '왼'], ['R', '오']].map(([val, label]) =>
           /*#__PURE__*/React.createElement("button", {
             key: val,
             onClick: () => updSet(sess.id, ei, si, 'side', ss.side === val && val !== '' ? '' : val),
             style: {
-              flex: 1, fontSize: '9px', padding: '4px 1px', borderRadius: '5px',
-              border: 'none', cursor: 'pointer',
-              background: ss.side === val ? (val === 'L' ? 'rgba(91,156,246,0.25)' : val === 'R' ? 'rgba(255,107,157,0.25)' : 'rgba(255,255,255,0.1)') : 'rgba(255,255,255,0.04)',
-              color: ss.side === val ? (val === 'L' ? '#5B9CF6' : val === 'R' ? '#FF6B9D' : '#aaa') : C.dim
+              fontSize: '9px', padding: '5px 4px', borderRadius: '5px', border: 'none', cursor: 'pointer', width: '22px',
+              background: ss.side === val ? (val === 'L' ? 'rgba(91,156,246,0.3)' : val === 'R' ? 'rgba(255,107,157,0.3)' : 'rgba(255,255,255,0.15)') : 'rgba(255,255,255,0.04)',
+              color: ss.side === val ? (val === 'L' ? '#5B9CF6' : val === 'R' ? '#FF6B9D' : '#ccc') : C.dim
             }
           }, label)
         )
       ),
       /*#__PURE__*/React.createElement("button", {
         onClick: () => rmSet(sess.id, ei, si),
-        style: { background: 'none', border: 'none', color: C.dim, cursor: 'pointer', fontSize: '16px', textAlign: 'center' }
+        style: { background: 'none', border: 'none', color: C.dim, cursor: 'pointer', fontSize: '16px', flexShrink: 0 }
       }, "\u2212")
-      ));
+      );
     }),
     /*#__PURE__*/React.createElement("button", {
       onClick: () => addSet(sess.id, ei),
