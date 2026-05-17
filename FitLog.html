@@ -147,12 +147,24 @@ document.addEventListener('keydown', e => {
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+<script src="https://unpkg.com/recharts@2.10.4/umd/Recharts.js"></script>
+<script>if (!window.Recharts) window.Recharts = {};</script>
 
 <script>
 
 const { useState, useEffect } = React;
-const { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ScatterChart, Scatter } = Recharts;
+const _RC = window.Recharts || {};
+const LineChart = _RC.LineChart || (({children,...p})=>React.createElement('div',p,children));
+const Line = _RC.Line || (()=>null);
+const BarChart = _RC.BarChart || (({children,...p})=>React.createElement('div',p,children));
+const Bar = _RC.Bar || (()=>null);
+const XAxis = _RC.XAxis || (()=>null);
+const YAxis = _RC.YAxis || (()=>null);
+const Tooltip = _RC.Tooltip || (()=>null);
+const ResponsiveContainer = _RC.ResponsiveContainer || (({children,width,height})=>React.createElement('div',{style:{width:width||'100%',height:height||120}},children));
+const CartesianGrid = _RC.CartesianGrid || (()=>null);
+const ScatterChart = _RC.ScatterChart || (({children,...p})=>React.createElement('div',p,children));
+const Scatter = _RC.Scatter || (()=>null);
 
 const storage = {
   get: async key => { try { const v = localStorage.getItem(key); return v ? { value: v } : null; } catch { return null; } },
@@ -903,7 +915,15 @@ function FitLog() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(FitLog, null));
+window._mountFitLog = () => {
+  try {
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(FitLog, null));
+  } catch(e) {
+    console.error('FitLog mount error:', e);
+  }
+};
+// 이미 로그인된 상태로 페이지 로드 시
+if (window._uid) window._mountFitLog();
 </script>
 </body>
 </html>
