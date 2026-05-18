@@ -666,6 +666,7 @@ function FitLog() {
     await persist(updated);showFlash('저장됐어요 ✓');
   };
   const loadDay=ds=>{const r=recs.find(r=>r.date===ds);setDay(r?{...r}:{...blankDay(),date:ds});setTab('record');setCalSel(null);};
+  const deleteDay=async(ds)=>{const updated=recs.filter(r=>r.date!==ds);await persist(updated);if(day.date===ds)setDay(blankDay());showFlash(`${ds} 기록 삭제됐어요`);};
 
   const allExNames=[...new Set(recs.flatMap(r=>r.sessions&&r.sessions.flatMap(s=>s.exercises&&s.exercises.filter(ex=>ex.kind==='strength').map(ex=>ex.name)||[])||[]))];
   const {prSet,currentBests}=buildPRs(recs);
@@ -1038,7 +1039,9 @@ function FitLog() {
                             (calcPace(ex.distanceKm,ex.durationMin)||calcPaceFromSpeed(ex.speedKmh))&&e("span",{style:{color:C.dim,fontFamily:mono}},"(",calcPace(ex.distanceKm,ex.durationMin)||calcPaceFromSpeed(ex.speedKmh),"/km)"))))),
                     sess.summary&&e("div",{style:{fontSize:'12px',color:C.accent,fontStyle:'italic',marginTop:'4px'}},'"',sess.summary,'"'));
                 }),
-                e("button",{onClick:()=>loadDay(r.date),style:{background:'rgba(255,255,255,0.05)',border:`1px solid ${C.border}`,borderRadius:'10px',color:C.mid,cursor:'pointer',padding:'10px',fontSize:'13px',fontFamily:sans}},"수정하기"))));
+                e("div",{style:{display:'flex',gap:'8px'}},
+                  e("button",{onClick:()=>loadDay(r.date),style:{flex:1,background:'rgba(255,255,255,0.05)',border:`1px solid ${C.border}`,borderRadius:'10px',color:C.mid,cursor:'pointer',padding:'10px',fontSize:'13px',fontFamily:sans}},"수정하기"),
+                  e("button",{onClick:()=>setConfirmModal({msg:`${r.date} 기록 전체를 삭제할까요?`,onOk:()=>deleteDay(r.date)}),style:{background:'rgba(255,85,85,0.1)',border:`1px solid rgba(255,85,85,0.3)`,borderRadius:'10px',color:C.red,cursor:'pointer',padding:'10px',fontSize:'13px',fontFamily:sans}},"삭제")))));
         })),
 
       // ═══ 분석 탭 ═══
