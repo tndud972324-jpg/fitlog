@@ -489,8 +489,22 @@ const {
 } = Recharts;
 
 const storage = {
-  get: async key => { try { const v = localStorage.getItem(key); return v ? {value:v} : null; } catch { return null; } },
-  set: async (key, value) => { try { localStorage.setItem(key, value); return {key,value}; } catch { return null; } }
+  get: async (key) => {
+    try {
+      const uid = window._uid; if (!uid) return null;
+      const doc = await window._db.collection('users').doc(uid).get();
+      if (!doc.exists) return null;
+      const val = doc.data()[key];
+      return val !== undefined ? {value: val} : null;
+    } catch { return null; }
+  },
+  set: async (key, value) => {
+    try {
+      const uid = window._uid; if (!uid) return null;
+      await window._db.collection('users').doc(uid).set({[key]: value}, {merge: true});
+      return {key, value};
+    } catch { return null; }
+  }
 };
 
 const DEFAULT_LIB = {
@@ -717,6 +731,7 @@ function FitLog() {
     return cells;
   };
   const exportJSON=()=>{const b=new Blob([JSON.stringify(recs,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='fitlog.json';a.click();};
+  const importJSON=()=>{const input=document.createElement('input');input.type='file';input.accept='.json';input.onchange=async(ev)=>{try{const file=ev.target.files[0];if(!file)return;const text=await file.text();const data=JSON.parse(text);if(!Array.isArray(data))throw new Error('invalid');const merged=[...data];recs.forEach(r=>{if(!merged.find(m=>m.date===r.date))merged.push(r);});merged.sort((a,b)=>b.date.localeCompare(a.date));await persist(merged);showFlash(`✓ ${merged.length}개 기록 불러왔어요`);}catch{showFlash('파일 형식이 맞지 않아요');}};input.click();};
 
   if(loading) return e("div",{style:{background:C.bg,height:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}},
     e("div",{style:{width:'36px',height:'36px',border:`3px solid rgba(187,255,0,0.15)`,borderTopColor:C.accent,borderRadius:'50%',animation:'spin .8s linear infinite'}}),
@@ -949,7 +964,9 @@ function FitLog() {
 
       // ═══ 히스토리 탭 ═══
       tab==='history'&&e("div",null,
-        e("button",{onClick:exportJSON,style:{width:'100%',background:'rgba(255,255,255,0.05)',border:`1px solid ${C.border}`,borderRadius:'10px',color:C.mid,cursor:'pointer',padding:'10px',fontSize:'13px',fontFamily:sans,marginBottom:'16px'}},"JSON 내보내기"),
+        e("div",{style:{display:'flex',gap:'8px',marginBottom:'16px'}},
+          e("button",{onClick:exportJSON,style:{flex:1,background:'rgba(255,255,255,0.05)',border:`1px solid ${C.border}`,borderRadius:'10px',color:C.mid,cursor:'pointer',padding:'10px',fontSize:'13px',fontFamily:sans}},"📤 JSON 내보내기"),
+          e("button",{onClick:importJSON,style:{flex:1,background:'rgba(255,255,255,0.05)',border:`1px solid ${C.border}`,borderRadius:'10px',color:C.mid,cursor:'pointer',padding:'10px',fontSize:'13px',fontFamily:sans}},"📥 JSON 가져오기")),
         recs.length===0&&e("div",{style:{textAlign:'center',padding:'60px 20px',color:C.dim}},e("div",{style:{fontSize:'36px',marginBottom:'12px'}},"📋"),e("div",null,"아직 기록이 없어요")),
         ...recs.map(r=>{
           const hasPR=r.sessions&&r.sessions.some(s=>s.exercises&&s.exercises.some(ex=>ex.kind==='strength'&&prSet.has(`${r.date}|${ex.name}`)));
@@ -1129,6 +1146,4 @@ function FitLog() {
           tab===id&&e("div",{style:{width:'18px',height:'2px',background:C.accent,borderRadius:'1px'}})))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(FitLog,null));
-</script>
-</body>
-</html>
+</script></body></html>
