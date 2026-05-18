@@ -1145,5 +1145,7 @@ function FitLog() {
           e("span",{style:{fontSize:'10px',color:tab===id?C.accent:C.dim,fontWeight:tab===id?'800':'400'}},label),
           tab===id&&e("div",{style:{width:'18px',height:'2px',background:C.accent,borderRadius:'1px'}})))));
 }
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(FitLog,null));
+window._mountFitLog = () => {
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(FitLog,null));
+};
 </script></body></html>
