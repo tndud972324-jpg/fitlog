@@ -614,6 +614,8 @@ function FitLog() {
   const [calMode,setCalMode]=useState('workout');
   const [flash,setFlash]=useState('');
   const [histOpen,setHistOpen]=useState(null);
+  const [confirmModal,setConfirmModal]=useState(null);
+  const [pickerEdit,setPickerEdit]=useState(false);
   const [anaEx,setAnaEx]=useState('');
   const [statsView,setStatsView]=useState('weekly');
   const [metric,setMetric]=useState('volume');
@@ -653,6 +655,11 @@ function FitLog() {
     setExLib(upd);
     addEx(sessId,{kind:'strength',bodyPart:part,name:name.trim(),setType:'reps',side:'both',sets:[{weight:'',reps:'',side:'both'}]});
   };
+  const deleteExFromLib=async(part,name)=>{
+    const upd={...exLib,[part]:(exLib[part]||[]).filter(n=>n!==name)};
+    try{await storage.set('fl4-exlib',JSON.stringify(upd));}catch{}
+    setExLib(upd);
+  };
   const save=async()=>{
     if(!day.date){showFlash('날짜를 선택해주세요');return;}
     const updated=[{...day},...recs.filter(r=>r.date!==day.date)].sort((a,b)=>b.date.localeCompare(a.date));
@@ -667,8 +674,15 @@ function FitLog() {
   const totalSess=recs.reduce((n,r)=>n+(r.sessions&&r.sessions.length||0),0);
 
   const weeklyByPart=m=>{
-    const tw=wkBounds(0),lw=wkBounds(1);const res={};
-    recs.forEach(r=>{const isT=r.date>=tw.start&&r.date<=tw.end,isL=r.date>=lw.start&&r.date<=lw.end;if(!isT&&!isL)return;
+    const now=new Date();now.setHours(0,0,0,0);
+    const dow=now.getDay();const dfm=dow===0?6:dow-1;
+    const thisMon=new Date(now);thisMon.setDate(now.getDate()-dfm);
+    const lastMon=new Date(thisMon);lastMon.setDate(thisMon.getDate()-7);
+    const lastSame=new Date(now);lastSame.setDate(now.getDate()-7);
+    const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const ts=fmt(thisMon),te=fmt(now),ls=fmt(lastMon),le=fmt(lastSame);
+    const res={};
+    recs.forEach(r=>{const isT=r.date>=ts&&r.date<=te,isL=r.date>=ls&&r.date<=le;if(!isT&&!isL)return;
       r.sessions&&r.sessions.forEach(s=>s.exercises&&s.exercises.forEach(ex=>{if(ex.kind!=='strength')return;if(!res[ex.bodyPart])res[ex.bodyPart]={this:0,last:0};
         const v=m==='volume'?ex.sets.reduce((s2,ss)=>s2+(parseFloat(ss.weight)||0)*(parseInt(ss.reps)||0),0):ex.sets.length;
         if(isT)res[ex.bodyPart].this+=v;else res[ex.bodyPart].last+=v;}));});
@@ -746,6 +760,15 @@ function FitLog() {
   const TT={background:'#1A1A28',border:`1px solid ${C.border}`,borderRadius:'10px',color:C.text,fontSize:'13px'};
 
   return e("div",{style:{background:C.bg,minHeight:'100vh',maxWidth:'430px',margin:'0 auto',color:C.text,fontFamily:sans,paddingBottom:'calc(90px + env(safe-area-inset-bottom))'}},
+    e("div",{style:{position:'fixed',top:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:'430px',height:'calc(env(safe-area-inset-top) + 12px)',background:'rgba(9,9,15,0.92)',backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',zIndex:998,pointerEvents:'none'}}),
+    flash&&e("div",{style:{position:'fixed',bottom:'calc(90px + env(safe-area-inset-bottom) + 16px)',left:'50%',transform:'translateX(-50%)',background:C.accent,color:'#000',padding:'12px 24px',borderRadius:'20px',fontWeight:'800',fontSize:'14px',zIndex:9998,whiteSpace:'nowrap',boxShadow:'0 4px 20px rgba(187,255,0,0.3)',pointerEvents:'none'}},flash),
+    confirmModal&&e("div",{style:{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}},
+      e("div",{style:{background:C.card,borderRadius:'16px',padding:'24px',width:'100%',maxWidth:'300px',border:`1px solid ${C.border}`}},
+        e("div",{style:{fontSize:'16px',fontWeight:'700',marginBottom:'16px',color:C.text}},"삭제하시겠어요?"),
+        e("div",{style:{fontSize:'13px',color:C.mid,marginBottom:'20px'}},confirmModal.msg),
+        e("div",{style:{display:'flex',gap:'8px'}},
+          e("button",{onClick:()=>setConfirmModal(null),style:{flex:1,background:'rgba(255,255,255,0.07)',border:`1px solid ${C.border}`,borderRadius:'10px',color:C.text,padding:'12px',cursor:'pointer',fontFamily:sans,fontSize:'14px'}},"취소"),
+          e("button",{onClick:()=>{confirmModal.onOk();setConfirmModal(null);},style:{flex:1,background:C.red,border:'none',borderRadius:'10px',color:'#fff',padding:'12px',cursor:'pointer',fontFamily:sans,fontSize:'14px',fontWeight:'700'}},"삭제")))),
     e("style",null,`input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4);}select option{background:#111119;}::-webkit-scrollbar{width:0;}input,textarea,select{-webkit-tap-highlight-color:transparent;}`),
     // ── 헤더
     e("div",{style:{padding:'28px 20px 0',display:'flex',alignItems:'center',justifyContent:'space-between'}},
@@ -753,8 +776,7 @@ function FitLog() {
         e("div",{style:{fontSize:'26px',fontWeight:'900',letterSpacing:'-1.5px',lineHeight:1}},
           e("span",{style:{color:C.accent,fontFamily:mono}},"FIT"),e("span",null,"LOG")),
         e("div",{style:{fontSize:'11px',color:C.dim,marginTop:'5px',letterSpacing:'.8px'}},"기록이 곧 성장이다")),
-      flash?e("div",{style:{background:C.accentBg,border:`1px solid ${C.accentDim}`,borderRadius:'20px',padding:'6px 14px',fontSize:'13px',color:C.accent,fontWeight:'700'}},flash)
-           :e("div",{style:{fontSize:'12px',color:C.dim,fontFamily:mono}},todayStr())),
+      e("div",{style:{fontSize:'12px',color:C.dim,fontFamily:mono}},todayStr())),
     // ── 탭 콘텐츠
     e("div",{style:{padding:'20px 16px 0'}},
       // ═══ 기록 탭 ═══
@@ -862,7 +884,7 @@ function FitLog() {
                             return e("button",{key:val,onClick:()=>updSet(sess.id,ei,si,'side',val),style:{flex:1,background:active?'rgba(255,255,255,0.14)':'transparent',border:'none',color:active?C.text:C.dim,cursor:'pointer',padding:'6px 1px',fontSize:'9px',fontWeight:active?'800':'400',fontFamily:mono}},lbl);})),
                         e("input",{type:"number",inputMode:"decimal",placeholder:"kg",value:ss.weight,onChange:ev=>updSet(sess.id,ei,si,'weight',ev.target.value),style:inp({padding:'8px 6px',textAlign:'center',fontFamily:mono,fontSize:'13px'})}),
                         e("input",{type:"number",inputMode:"numeric",placeholder:setUnit(ex.setType||'reps'),value:ss.reps,onChange:ev=>updSet(sess.id,ei,si,'reps',ev.target.value),style:inp({padding:'8px 6px',textAlign:'center',fontFamily:mono,fontSize:'13px'})}),
-                        e("button",{onClick:()=>rmSet(sess.id,ei,si),style:{background:'none',border:'none',color:C.dim,cursor:'pointer',fontSize:'16px',textAlign:'center'}},"−"))),
+                        e("button",{onClick:()=>setConfirmModal({msg:`세트 ${si+1} 삭제할까요?`,onOk:()=>rmSet(sess.id,ei,si)}),style:{background:'none',border:'none',color:C.dim,cursor:'pointer',fontSize:'16px',textAlign:'center'}},"−"))),
                     e("button",{onClick:()=>addSet(sess.id,ei),style:{background:'transparent',border:`1px dashed rgba(255,255,255,0.1)`,borderRadius:'7px',color:C.mid,cursor:'pointer',padding:'6px',fontSize:'12px',width:'100%',marginTop:'3px',fontFamily:sans}},"+ 세트 추가")),
                   // ── 유산소 운동
                   ex.kind==='cardio'&&e("div",null,
@@ -888,13 +910,19 @@ function FitLog() {
                 e("button",{onClick:()=>setPicker(p=>({...p,sessId:null,mode:'none'})),style:{background:'none',border:'none',color:C.dim,cursor:'pointer',fontSize:'12px',fontFamily:sans}},"취소")),
               // 피커 — 종목 선택
               isOpen&&picker.mode==='strength-exercise'&&e("div",{style:{background:'rgba(255,255,255,0.03)',borderRadius:'10px',padding:'12px',border:`1px solid ${C.border}`,marginBottom:'10px'}},
-                e("div",{style:{display:'flex',alignItems:'center',gap:'8px',marginBottom:'10px'}},
-                  e("button",{onClick:()=>setPicker(p=>({...p,mode:'strength-part',part:''})),style:{background:'none',border:'none',color:C.dim,cursor:'pointer',fontSize:'16px'}},"←"),
-                  e(Dot,{color:PART_COLORS[picker.part]||C.mid,size:8}),
-                  e("span",{style:{fontSize:'13px',fontWeight:'800',color:PART_COLORS[picker.part]||C.accent}},picker.part)),
+                e("div",{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}},
+                  e("div",{style:{display:'flex',alignItems:'center',gap:'8px'}},
+                    e("button",{onClick:()=>{setPicker(p=>({...p,mode:'strength-part',part:''}));setPickerEdit(false);},style:{background:'none',border:'none',color:C.dim,cursor:'pointer',fontSize:'16px'}},"←"),
+                    e(Dot,{color:PART_COLORS[picker.part]||C.mid,size:8}),
+                    e("span",{style:{fontSize:'13px',fontWeight:'800',color:PART_COLORS[picker.part]||C.accent}},picker.part)),
+                  e("button",{onClick:()=>setPickerEdit(v=>!v),style:{background:pickerEdit?'rgba(255,85,85,0.15)':'rgba(255,255,255,0.06)',border:`1px solid ${pickerEdit?C.red:C.border}`,borderRadius:'8px',color:pickerEdit?C.red:C.dim,cursor:'pointer',padding:'4px 10px',fontSize:'11px',fontFamily:sans}},pickerEdit?'완료':'편집')),
                 e("div",{style:{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'10px'}},
                   (exLib[picker.part]||[]).map(name=>
-                    e("button",{key:name,onClick:()=>addEx(sess.id,{kind:'strength',bodyPart:picker.part,name,setType:'reps',side:'both',sets:[{weight:'',reps:'',side:'both'}]}),style:{background:'rgba(255,255,255,0.06)',border:`1px solid ${C.border}`,borderRadius:'18px',color:C.text,cursor:'pointer',padding:'6px 12px',fontSize:'12px',fontFamily:sans}},name))),
+                    pickerEdit
+                      ?e("div",{key:name,style:{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.06)',border:`1px solid ${C.border}`,borderRadius:'18px',overflow:'hidden'}},
+                          e("span",{style:{padding:'6px 10px',fontSize:'12px',color:C.text,fontFamily:sans}},name),
+                          e("button",{onClick:()=>setConfirmModal({msg:`'${name}' 종목을 삭제할까요?`,onOk:()=>deleteExFromLib(picker.part,name)}),style:{background:'none',border:'none',borderLeft:`1px solid ${C.border}`,color:C.red,cursor:'pointer',padding:'6px 8px',fontSize:'12px'}},"×"))
+                      :e("button",{key:name,onClick:()=>addEx(sess.id,{kind:'strength',bodyPart:picker.part,name,setType:'reps',side:'both',sets:[{weight:'',reps:'',side:'both'}]}),style:{background:'rgba(255,255,255,0.06)',border:`1px solid ${C.border}`,borderRadius:'18px',color:C.text,cursor:'pointer',padding:'6px 12px',fontSize:'12px',fontFamily:sans}},name))),
                 e("div",{style:{display:'flex',gap:'6px'}},
                   e("input",{type:"text",placeholder:"직접 입력",value:picker.custom,onChange:ev=>setPicker(p=>({...p,custom:ev.target.value})),style:inp({flex:1,padding:'8px 10px',fontSize:'13px'})}),
                   e("button",{onClick:()=>addCustomStr(sess.id,picker.part,picker.custom),style:{background:C.accent,border:'none',borderRadius:'8px',color:'#000',cursor:'pointer',padding:'8px 12px',fontSize:'12px',fontWeight:'800',fontFamily:sans,whiteSpace:'nowrap'}},"추가"))),
@@ -1038,7 +1066,7 @@ function FitLog() {
                 [['이번주 거리',cs_.tKm+'km',true],[`이번주 시간`,cs_.tMin>=60?`${Math.floor(cs_.tMin/60)}h ${cs_.tMin%60}m`:`${cs_.tMin}분`,true],cs_.lKm>0?['지난주 거리',cs_.lKm+'km',false]:null].filter(Boolean).map(([l,v,hi])=>
                   e("div",{key:l},e("div",{style:{fontSize:'10px',color:hi?C.orange:C.dim,fontWeight:'700',marginBottom:'3px'}},l),e("div",{style:{fontSize:'18px',fontWeight:'900',color:hi?C.orange:C.dim,fontFamily:mono}},v)))),
               wpParts.length>0&&e("div",{style:{marginBottom:'20px'}},
-                e("div",{style:{fontSize:'11px',color:C.dim,fontWeight:'700',letterSpacing:'1px',marginBottom:'14px'}},"부위별 — 진한 이번주 / 연한 지난주"),
+                e("div",{style:{fontSize:'11px',color:C.dim,fontWeight:'700',letterSpacing:'1px',marginBottom:'14px'}},"부위별 — 진한 저번주 / 연한 이번주"),
                 e("div",{style:{display:'flex',alignItems:'flex-end',gap:'5px',height:'130px',marginBottom:'8px'}},
                   wpParts.map(part=>{const d=wpData[part],color=PART_COLORS[part]||C.mid;return e("div",{key:part,style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',height:'100%',justifyContent:'flex-end',gap:'3px'}},
                     e("div",{style:{fontSize:'9px',color,fontFamily:mono,fontWeight:'700',textAlign:'center',minHeight:'11px'}},d.this>0?fmtV(d.this,metric):''),
