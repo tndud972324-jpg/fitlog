@@ -627,7 +627,7 @@ function FitLog() {
   },[]);
 
   const initData = async () => {
-    try{const r=await storage.get('fl4-records');if(r&&r.value)setRecs(JSON.parse(r.value));const ex=await storage.get('fl4-exlib');if(ex&&ex.value)setExLib(JSON.parse(ex.value));}catch{}
+    try{const r=await storage.get('fl4-records');if(r&&r.value){const parsed=JSON.parse(r.value);setRecs(parsed);const todayRec=parsed.find(rec=>rec.date===todayStr());if(todayRec)setDay({...todayRec});}const ex=await storage.get('fl4-exlib');if(ex&&ex.value)setExLib(JSON.parse(ex.value));}catch{}
     setLoading(false);
   };
   const showFlash=msg=>{setFlash(msg);setTimeout(()=>setFlash(''),2200);};
