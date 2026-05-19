@@ -74,7 +74,7 @@
 
 <div id="user-bar" style="display:none">
   <span id="user-email"></span>
-  <button onclick="auth.signOut()">로그아웃</button>
+  <button onclick="auth.signOut().then(() => window.location.reload())">로그아웃</button>
 </div>
 <div id="root" style="display:none"></div>
 
@@ -576,15 +576,15 @@ const Seg = ({options,value,onChange,sm=false}) => e("div",{style:{display:'flex
   options.map(([v,l]) => e("button",{key:v,onClick:()=>onChange(v),style:{flex:1,background:value===v?C.card:'transparent',border:value===v?`1px solid ${C.border}`:'1px solid transparent',borderRadius:'8px',color:value===v?C.text:C.dim,cursor:'pointer',padding:sm?'6px 2px':'8px 4px',fontSize:sm?'11px':'12px',fontWeight:value===v?'700':'400',fontFamily:sans,whiteSpace:'nowrap'}},l))
 );
 
-const calcStreak = recs => {
-  const dates = new Set(recs.filter(r=>r.sessions&&r.sessions.length>0).map(r=>r.date));
-  const today=todayStr(),yest=new Date();yest.setDate(yest.getDate()-1);
-  const yStr=yest.toISOString().split('T')[0];
-  let cur=dates.has(today)?today:dates.has(yStr)?yStr:null;
-  if(!cur)return 0;
-  let n=0,d=new Date(cur);
-  while(true){const s=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(!dates.has(s))break;n++;d.setDate(d.getDate()-1);}
-  return n;
+const calcThisWeekDays = recs => {
+  const now=new Date();now.setHours(0,0,0,0);
+  const dow=now.getDay();const dfm=dow===0?6:dow-1;
+  const mon=new Date(now);mon.setDate(now.getDate()-dfm);
+  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const dates=new Set(recs.filter(r=>r.sessions&&r.sessions.length>0).map(r=>r.date));
+  let count=0;
+  for(let i=0;i<=dfm;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);if(dates.has(fmt(d)))count++;}
+  return count;
 };
 const buildPRs = recs => {
   const maxSoFar={},prSet=new Set(),currentBests={};
@@ -670,7 +670,7 @@ function FitLog() {
 
   const allExNames=[...new Set(recs.flatMap(r=>r.sessions&&r.sessions.flatMap(s=>s.exercises&&s.exercises.filter(ex=>ex.kind==='strength').map(ex=>ex.name)||[])||[]))];
   const {prSet,currentBests}=buildPRs(recs);
-  const streak=calcStreak(recs);
+  const thisWeekDays=calcThisWeekDays(recs);
   const totalDays=recs.filter(r=>r.sessions&&r.sessions.length>0).length;
   const totalSess=recs.reduce((n,r)=>n+(r.sessions&&r.sessions.length||0),0);
 
@@ -777,7 +777,7 @@ function FitLog() {
         e("div",{style:{fontSize:'26px',fontWeight:'900',letterSpacing:'-1.5px',lineHeight:1}},
           e("span",{style:{color:C.accent,fontFamily:mono}},"FIT"),e("span",null,"LOG")),
         e("div",{style:{fontSize:'11px',color:C.dim,marginTop:'5px',letterSpacing:'.8px'}},"기록이 곧 성장이다")),
-      e("div",{style:{fontSize:'12px',color:C.dim,fontFamily:mono}},todayStr())),
+      e("div",{style:{fontSize:'12px',color:C.dim,fontFamily:mono}},todayStr()," (",DAYS_KR[new Date().getDay()],")")),
     // ── 탭 콘텐츠
     e("div",{style:{padding:'20px 16px 0'}},
       // ═══ 기록 탭 ═══
@@ -1050,7 +1050,7 @@ function FitLog() {
         :e("div",null,
           // 요약 카드
           e("div",{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'8px',marginBottom:'14px'}},
-            [['🔥',streak+'일','연속'],['💪',totalDays+'일','운동한 날'],['📋',totalSess+'회','총 세션']].map(([icon,val,label])=>
+            [['📅',thisWeekDays+'/7일','이번 주'],['💪',totalDays+'일','운동한 날'],['📋',totalSess+'회','총 세션']].map(([icon,val,label])=>
               e("div",{key:label,style:cs({padding:'14px 10px',textAlign:'center'})},
                 e("div",{style:{fontSize:'20px',marginBottom:'6px'}},icon),
                 e("div",{style:{fontSize:'19px',fontWeight:'900',color:C.accent,fontFamily:mono,lineHeight:1}},val),
