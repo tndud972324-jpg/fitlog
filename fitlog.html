@@ -581,7 +581,8 @@ const calcThisWeekDays = recs => {
   const dow=now.getDay();const dfm=dow===0?6:dow-1;
   const mon=new Date(now);mon.setDate(now.getDate()-dfm);
   const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const dates=new Set(recs.filter(r=>r.sessions&&r.sessions.length>0).map(r=>r.date));
+  const isWDay=r=>r.sessions&&r.sessions.some(s=>s.exercises&&s.exercises.length>0);
+  const dates=new Set(recs.filter(isWDay).map(r=>r.date));
   let count=0;
   for(let i=0;i<=dfm;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);if(dates.has(fmt(d)))count++;}
   return count;
@@ -662,7 +663,11 @@ function FitLog() {
   };
   const save=async()=>{
     if(!day.date){showFlash('날짜를 선택해주세요');return;}
-    const updated=[{...day},...recs.filter(r=>r.date!==day.date)].sort((a,b)=>b.date.localeCompare(a.date));
+    const cleanSessions=day.sessions.filter(s=>
+      (s.exercises&&s.exercises.length>0)||s.timeStart||s.timeEnd||s.trainerMemo||s.summary
+    );
+    const saved={...day,sessions:cleanSessions};
+    const updated=[saved,...recs.filter(r=>r.date!==day.date)].sort((a,b)=>b.date.localeCompare(a.date));
     await persist(updated);showFlash('저장됐어요 ✓');
   };
   const loadDay=ds=>{const r=recs.find(r=>r.date===ds);setDay(r?{...r}:{...blankDay(),date:ds});setTab('record');setCalSel(null);};
@@ -671,7 +676,7 @@ function FitLog() {
   const allExNames=[...new Set(recs.flatMap(r=>r.sessions&&r.sessions.flatMap(s=>s.exercises&&s.exercises.filter(ex=>ex.kind==='strength').map(ex=>ex.name)||[])||[]))];
   const {prSet,currentBests}=buildPRs(recs);
   const thisWeekDays=calcThisWeekDays(recs);
-  const totalDays=recs.filter(r=>r.sessions&&r.sessions.length>0).length;
+  const totalDays=recs.filter(r=>r.sessions&&r.sessions.some(s=>s.exercises&&s.exercises.length>0)).length;
   const totalSess=recs.reduce((n,r)=>n+(r.sessions&&r.sessions.length||0),0);
 
   const weeklyByPart=m=>{
