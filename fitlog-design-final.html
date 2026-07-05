@@ -140,12 +140,17 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
   font-size: var(--fs-title); font-weight: 600; letter-spacing: -.02em;
   text-align: center; padding: 8px 4px;
 }
-.inp:focus { box-shadow: 0 0 0 1.5px var(--acc); }
+.inp:focus { box-shadow: 0 0 0 2px var(--acc); }
 .del { color: var(--dim); text-align: center; font-size: var(--fs-body); }
 .add-set {
   display: block; width: 100%; margin-top: 8px; padding: 9px 0; border-radius: 10px;
-  border: 1.5px dashed var(--dash); color: var(--mid); font-size: var(--fs-small); font-weight: 600;
+  border: 2px dashed var(--dash); color: var(--mid); font-size: var(--fs-small); font-weight: 600;
 }
+
+/* 횟수/초 토글 — 세트 유형 (setType: reps|seconds) */
+.type-seg { display: inline-flex; background: var(--b-well); border-radius: 8px; padding: 2px; margin-top: 10px; }
+.type-seg button { font-size: var(--fs-micro); font-weight: 600; padding: 5px 14px; border-radius: 6px; color: var(--dim); }
+.type-seg button.on { background: var(--b-active); color: var(--tx); font-weight: 700; }
 
 /* 주 버튼 — 가장 밝은 한 음 ② */
 .add-row { display: flex; gap: 8px; margin-top: 16px; }
@@ -199,6 +204,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
       <span class="ex-name">스쿼트</span>
       <button class="ex-x">✕</button>
     </div>
+    <div class="type-seg"><button class="on">횟수</button><button>초</button></div>
     <button class="pr" data-hist>
       <span class="tag">신기록</span>
       <span class="v"><b class="num">8kg</b> · 07-03 금</span>
@@ -239,6 +245,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
       <span class="ex-name">레그 프레스</span>
       <button class="ex-x">✕</button>
     </div>
+    <div class="type-seg"><button class="on">횟수</button><button>초</button></div>
     <button class="pr" data-hist>
       <span class="tag">신기록</span>
       <span class="v"><b class="num">75.5kg</b> · 07-03 금</span>
@@ -287,7 +294,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
 </nav>
 
 <script>
-document.querySelectorAll('.seg3, .seg2, .tabbar').forEach(function (group) {
+document.querySelectorAll('.seg3, .seg2, .type-seg, .tabbar').forEach(function (group) {
   group.addEventListener('click', function (e) {
     var btn = e.target.closest('button');
     if (!btn) return;
