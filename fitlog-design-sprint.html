@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FitLog 디자인 스프린트 — 기록탭 시안 3종</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Archivo:wdth,wght@62..125,300..800&family=Outfit:wght@300..800&family=Noto+Sans+KR:wght@300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* ============================================================
+   FitLog Chunk 2.5 디자인 스프린트 — 기록탭 시안 3종 비교
+   같은 데이터 · 같은 화면 · 다른 톤 (수영의 디자인 노트 프레임)
+   시안1 산업적 INDUSTRIAL / 시안2 미니멀 AIR / 시안3 소프트 WARM
+   공통 마감: 색조 섞인 회색 · 헤드라인 자간 축소 · 2겹 그림자 · 절제된 등장 모션
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: #060607;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+button { font-family: inherit; border: none; background: none; color: inherit; cursor: pointer; }
+input { font-family: inherit; outline: none; }
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* ---------- 스프린트 스위처 (시안 아님 — 비교용 UI) ---------- */
+.switcher {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px 10px;
+  background: rgba(8,8,10,.86);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  font-family: 'Pretendard Variable', 'Noto Sans KR', sans-serif;
+}
+.sw-row { display: flex; gap: 6px; }
+.sw-btn {
+  flex: 1; padding: 8px 0 7px; border-radius: 8px; text-align: center;
+  font-size: 12.5px; font-weight: 600; color: #7d7d8a;
+  border: 1px solid rgba(255,255,255,.08); transition: all .18s ease;
+}
+.sw-btn small { display: block; font-size: 9.5px; font-weight: 400; letter-spacing: .06em; margin-top: 1px; opacity: .7; }
+.sw-btn.on { color: #0a0a0c; background: #e8e8ee; border-color: #e8e8ee; }
+.sw-hint { text-align: center; font-size: 10px; color: #55555f; margin-top: 7px; letter-spacing: .02em; }
+
+/* ---------- 화면 공통 ---------- */
+.screen { display: none; min-height: 100vh; padding-bottom: 110px; }
+.screen.active { display: block; }
+[data-anim] { opacity: 0; transform: translateY(14px); }
+.active [data-anim] { animation: rise .5s cubic-bezier(.2,.7,.2,1) forwards; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+
+/* ============================================================
+   시안 1 — 산업적 INDUSTRIAL  (덜어냄·진지 / 밀도·격자·모노)
+   현 다크+라임의 직계 진화. 테두리로 구분, 각진 모서리, 데이터가 주인공.
+   ============================================================ */
+.d1 {
+  --bg: #0a0b0e;           /* 블루 한 방울 섞인 검정 */
+  --panel: #101218;
+  --panel2: #151823;
+  --line: rgba(178,192,255,.09);
+  --line2: rgba(178,192,255,.16);
+  --acc: #bfff00;
+  --acc-bg: rgba(191,255,0,.07);
+  --acc-dim: rgba(191,255,0,.35);
+  --tx: #edeff4;
+  --mid: #8b93a7;          /* 블루 틴트 회색 */
+  --dim: #545b6e;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(178,192,255,.022) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 23px, rgba(178,192,255,.022) 23px 24px),
+    var(--bg);
+  color: var(--tx);
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.d1 .mono { font-family: 'DM Mono', monospace; }
+.d1 .wrap { padding: calc(env(safe-area-inset-top, 0px) + 78px) 14px 0; max-width: 480px; margin: 0 auto; }
+
+.d1 .hd { display: flex; align-items: baseline; justify-content: space-between; padding: 10px 2px 18px; }
+.d1 .logo { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; letter-spacing: -.045em; }
+.d1 .logo b { color: var(--acc); font-weight: 500; }
+.d1 .hd-date { font-family: 'DM Mono', monospace; font-size: 12.5px; color: var(--mid); letter-spacing: .02em; }
+
+.d1 .cond {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;
+  border: 1px solid var(--line); background: var(--panel);
+  padding: 11px 14px; margin-bottom: 10px;
+}
+.d1 .lbl { font-size: 10px; letter-spacing: .12em; color: var(--dim); font-weight: 500; }
+.d1 .cond .val { font-family: 'DM Mono', monospace; font-size: 15px; color: var(--acc); }
+.d1 .cond .sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--mid); }
+
+.d1 .sess {
+  border: 1px solid var(--line); background: var(--panel); margin-bottom: 10px;
+}
+.d1 .sess-hd {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--line);
+}
+.d1 .sess-hd .lbl { color: var(--mid); }
+.d1 .sess-hd .time { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 12.5px; color: var(--tx); }
+.d1 .sess-hd .time span { color: var(--dim); }
+.d1 .seg2 { display: flex; padding: 10px 14px; gap: 6px; }
+.d1 .seg2 button {
+  flex: 1; padding: 9px 0; font-size: 13px; font-weight: 700;
+  border: 1px solid var(--line2); color: var(--dim); letter-spacing: .02em;
+}
+.d1 .seg2 button.on { background: var(--acc); color: #0a0b0e; border-color: var(--acc); }
+
+.d1 .ex { border: 1px solid var(--line); background: var(--panel); margin-bottom: 10px; }
+.d1 .ex-hd { display: flex; align-items: center; gap: 9px; padding: 12px 14px 4px; }
+.d1 .part {
+  font-size: 10.5px; letter-spacing: .1em; color: var(--acc);
+  border: 1px solid var(--acc-dim); background: var(--acc-bg); padding: 2px 7px; font-weight: 500;
+}
+.d1 .ex-name { font-size: 16.5px; font-weight: 700; letter-spacing: -.02em; }
+.d1 .ex-x { margin-left: auto; color: var(--dim); font-size: 15px; padding: 2px 4px; }
+
+.d1 .pr {
+  display: flex; align-items: center; gap: 8px; width: calc(100% - 28px);
+  margin: 8px 14px 0; padding: 8px 10px; text-align: left;
+  background: var(--panel2); border: 1px solid var(--line);
+  font-size: 12px; color: var(--mid);
+}
+.d1 .pr .mono { color: var(--tx); font-size: 12.5px; }
+.d1 .pr .tag { color: var(--acc); font-family: 'DM Mono', monospace; font-size: 10.5px; letter-spacing: .1em; }
+.d1 .pr .arr { margin-left: auto; font-size: 9px; color: var(--dim); transition: transform .2s; }
+.d1 .pr.open .arr { transform: rotate(180deg); }
+.d1 .hist { display: none; margin: 0 14px; border: 1px solid var(--line); border-top: none; background: var(--panel2); padding: 9px 12px; }
+.d1 .hist.show { display: block; }
+.d1 .hist .h-date { font-size: 10.5px; letter-spacing: .1em; color: var(--dim); margin-bottom: 5px; }
+.d1 .hist .h-set { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--mid); padding: 1.5px 0; }
+.d1 .hist .h-set b { color: var(--tx); font-weight: 400; }
+
+.d1 .set-hd, .d1 .set-row {
+  display: grid; grid-template-columns: 20px 88px 1fr 1fr 24px; gap: 8px; align-items: center;
+}
+.d1 .set-hd { padding: 12px 14px 5px; font-size: 9.5px; letter-spacing: .12em; color: var(--dim); text-align: center; font-weight: 500; }
+.d1 .set-row { padding: 3px 14px; }
+.d1 .set-num { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); text-align: center; }
+.d1 .seg3 { display: flex; border: 1px solid var(--line2); }
+.d1 .seg3 button { flex: 1; font-size: 11px; padding: 6px 0; color: var(--dim); }
+.d1 .seg3 button.on { background: var(--acc); color: #0a0b0e; font-weight: 700; }
+.d1 .inp {
+  width: 100%; background: #0c0e13; border: 1px solid var(--line2); color: var(--tx);
+  font-family: 'DM Mono', monospace; font-size: 17px; text-align: center; padding: 8px 4px; border-radius: 0;
+}
+.d1 .inp:focus { border-color: var(--acc-dim); }
+.d1 .del { color: var(--dim); text-align: center; font-size: 16px; }
+.d1 .add-set {
+  display: block; width: calc(100% - 28px); margin: 10px 14px 14px; padding: 10px 0;
+  border: 1px dashed var(--acc-dim); color: var(--acc); font-size: 12.5px; font-weight: 500; letter-spacing: .06em;
+}
+.d1 .add-row { display: flex; gap: 8px; margin: 14px 0 8px; }
+.d1 .add-row button {
+  flex: 1; padding: 13px 0; font-size: 13.5px; font-weight: 700; letter-spacing: .04em;
+  border: 1px solid var(--acc-dim); background: var(--acc-bg); color: var(--acc);
+}
+.d1 .tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  display: flex; background: rgba(10,11,14,.92);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line2);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.d1 .tabbar button { flex: 1; padding: 12px 0 10px; font-size: 11.5px; color: var(--dim); letter-spacing: .04em; }
+.d1 .tabbar button.on { color: var(--acc); }
+.d1 .tabbar button.on::after { content: ''; display: block; width: 18px; height: 2px; background: var(--acc); margin: 4px auto 0; }
+.d1 .tabbar button:not(.on)::after { content: ''; display: block; width: 18px; height: 2px; background: transparent; margin: 4px auto 0; }
+
+/* ============================================================
+   시안 2 — 미니멀 AIR  (극단적 덜어냄 / 여백이 주인공 / 라임 = 단 하나의 신호)
+   카드 없음. 간격과 헤어라인만으로 구분. 숫자가 화면의 주인.
+   ============================================================ */
+.d2 {
+  --bg: #0b0b0c;
+  --line: rgba(235,235,228,.08);
+  --acc: #bfff00;
+  --tx: #f2f2ee;            /* 아주 살짝 웜 화이트 */
+  --mid: #8e8e88;           /* 웜 틴트 회색 */
+  --dim: #55554f;
+  background: var(--bg);
+  color: var(--tx);
+  font-family: 'Archivo', 'Pretendard Variable', 'Noto Sans KR', sans-serif;
+}
+.d2 .wrap { padding: calc(env(safe-area-inset-top, 0px) + 84px) 22px 0; max-width: 460px; margin: 0 auto; }
+
+.d2 .hd { padding: 6px 0 30px; }
+.d2 .logo {
+  font-size: 15px; font-weight: 800; letter-spacing: .22em; color: var(--tx);
+  font-stretch: 125%;
+}
+.d2 .hd-date {
+  font-size: 34px; font-weight: 300; letter-spacing: -.035em; margin-top: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.d2 .hd-date b { font-weight: 600; }
+.d2 .hd-sub { font-size: 12.5px; color: var(--mid); margin-top: 4px; font-family: 'Pretendard Variable','Noto Sans KR',sans-serif; }
+
+.d2 .cond { display: flex; align-items: baseline; gap: 14px; padding: 18px 0; border-top: 1px solid var(--line); }
+.d2 .cond .k { font-size: 11px; letter-spacing: .14em; color: var(--dim); font-weight: 500; }
+.d2 .cond .v { font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.d2 .cond .v small { font-size: 12px; color: var(--dim); font-weight: 400; }
+.d2 .cond .note { margin-left: auto; font-size: 12px; color: var(--mid); font-family: 'Pretendard Variable','Noto Sans KR',sans-serif; }
+
+.d2 .sess { display: flex; align-items: baseline; gap: 16px; padding: 16px 0 26px; border-top: 1px solid var(--line); }
+.d2 .sess .k { font-size: 11px; letter-spacing: .14em; color: var(--dim); font-weight: 500; }
+.d2 .sess .mode { display: flex; gap: 14px; font-family: 'Pretendard Variable','Noto Sans KR',sans-serif; }
+.d2 .sess .mode button { font-size: 13.5px; color: var(--dim); padding-bottom: 3px; }
+.d2 .sess .mode button.on { color: var(--tx); font-weight: 700; border-bottom: 2px solid var(--acc); }
+.d2 .sess .time { margin-left: auto; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--mid); }
+.d2 .sess .time span { color: var(--dim); }
+
+.d2 .ex { padding: 24px 0 8px; border-top: 1px solid var(--line); }
+.d2 .ex-hd { display: flex; align-items: baseline; gap: 10px; }
+.d2 .part { font-size: 10.5px; letter-spacing: .16em; color: var(--dim); font-weight: 600; }
+.d2 .ex-name { font-size: 23px; font-weight: 700; letter-spacing: -.03em; font-family: 'Pretendard Variable','Noto Sans KR',sans-serif; }
+.d2 .ex-x { margin-left: auto; color: var(--dim); font-size: 14px; }
+
+.d2 .pr { display: flex; align-items: baseline; gap: 8px; padding: 10px 0 2px; width: 100%; text-align: left; }
+.d2 .pr .tag { font-size: 10px; letter-spacing: .18em; color: var(--dim); font-weight: 700; }
+.d2 .pr .v { font-size: 13px; color: var(--mid); font-variant-numeric: tabular-nums; }
+.d2 .pr .arr { margin-left: auto; font-size: 9px; color: var(--dim); transition: transform .2s; }
+.d2 .pr.open .arr { transform: rotate(180deg); }
+.d2 .hist { display: none; padding: 6px 0 2px; }
+.d2 .hist.show { display: block; }
+.d2 .hist .h-date { font-size: 10px; letter-spacing: .14em; color: var(--dim); margin-bottom: 4px; }
+.d2 .hist .h-set { font-size: 13.5px; color: var(--mid); padding: 1.5px 0; font-variant-numeric: tabular-nums; }
+.d2 .hist .h-set b { color: var(--tx); font-weight: 500; }
+
+.d2 .set-row { display: grid; grid-template-columns: 16px 76px 1fr 12px 1fr 20px; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.d2 .set-row:last-of-type { border-bottom: none; }
+.d2 .set-num { font-size: 11px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.d2 .set-row.live .set-num { color: var(--acc); }
+.d2 .seg3 { display: flex; gap: 10px; font-family: 'Pretendard Variable','Noto Sans KR',sans-serif; }
+.d2 .seg3 button { font-size: 12px; color: var(--dim); padding: 2px 0; }
+.d2 .seg3 button.on { color: var(--tx); font-weight: 700; border-bottom: 1.5px solid var(--tx); }
+.d2 .inp {
+  width: 100%; background: transparent; border: none; border-radius: 0;
+  color: var(--tx); font-family: 'Archivo', sans-serif; font-variant-numeric: tabular-nums;
+  font-size: 26px; font-weight: 400; letter-spacing: -.02em; text-align: right; padding: 0 2px;
+}
+.d2 .inp::placeholder { color: var(--dim); }
+.d2 .unit { font-size: 11px; color: var(--dim); }
+.d2 .del { color: var(--dim); font-size: 15px; text-align: right; }
+.d2 .add-set { display: block; padding: 12px 0 6px; color: var(--mid); font-size: 12.5px; letter-spacing: .08em; font-weight: 500; }
+.d2 .add-row { display: flex; gap: 26px; padding: 26px 0 10px; border-top: 1px solid var(--line); margin-top: 16px; }
+.d2 .add-row button { font-size: 14.5px; font-weight: 700; color: var(--bg); background: var(--acc); padding: 13px 0; flex: 1; border-radius: 2px; letter-spacing: .02em; font-family: 'Pretendard Variable','Noto Sans KR',sans-serif; }
+.d2 .add-row button.ghost { background: transparent; color: var(--mid); border: 1px solid var(--line); }
+.d2 .tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  display: flex; background: rgba(11,11,12,.92);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  font-family: 'Pretendard Variable','Noto Sans KR',sans-serif;
+}
+.d2 .tabbar button { flex: 1; padding: 14px 0 12px; font-size: 11.5px; color: var(--dim); letter-spacing: .08em; }
+.d2 .tabbar button.on { color: var(--tx); font-weight: 700; }
+
+/* ============================================================
+   시안 3 — 소프트 WARM  (진지↔친근 축에서 친근 쪽 / 따뜻한 다크)
+   웜 다크 + 둥근 모서리 + 2겹 그림자. 컨디션(FitLog 기둥)이 앞자리.
+   라임은 한 톤 부드럽게(#CDE84A) 진화시켜 테스트.
+   ============================================================ */
+.d3 {
+  --bg: #16130f;            /* 갈색 한 방울 섞인 다크 */
+  --card: #201c16;
+  --card2: #2a251d;
+  --line: rgba(255,235,200,.07);
+  --acc: #cde84a;           /* 소프트 라임 */
+  --acc-deep: #a8c433;
+  --warm: #ffb86b;
+  --tx: #f6f1e8;            /* 웜 화이트 */
+  --mid: #a49a8a;           /* 웜 틴트 회색 */
+  --dim: #6e6557;
+  background:
+    radial-gradient(120% 50% at 50% -10%, rgba(205,232,74,.05), transparent 60%),
+    var(--bg);
+  color: var(--tx);
+  font-family: 'Pretendard Variable', 'Noto Sans KR', sans-serif;
+}
+.d3 .num { font-family: 'Outfit', sans-serif; font-variant-numeric: tabular-nums; }
+.d3 .wrap { padding: calc(env(safe-area-inset-top, 0px) + 78px) 18px 0; max-width: 470px; margin: 0 auto; }
+.d3 .card-shadow {
+  box-shadow: 0 30px 60px -35px rgba(8,5,1,.75), 0 8px 20px -10px rgba(8,5,1,.55);
+}
+
+.d3 .hd { display: flex; align-items: center; padding: 8px 2px 18px; }
+.d3 .logo { font-family: 'Outfit', sans-serif; font-size: 21px; font-weight: 700; letter-spacing: -.03em; }
+.d3 .logo b { color: var(--acc); font-weight: 700; }
+.d3 .hd-date { margin-left: auto; font-size: 13px; color: var(--mid); font-weight: 500; }
+
+.d3 .cond {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, var(--card2), var(--card));
+  border: 1px solid var(--line); border-radius: 22px; padding: 15px 18px; margin-bottom: 12px;
+}
+.d3 .ring {
+  width: 46px; height: 46px; border-radius: 50%; flex: none;
+  background: conic-gradient(var(--acc) 0 252deg, rgba(255,235,200,.1) 252deg 360deg);
+  display: grid; place-items: center;
+}
+.d3 .ring i {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--card);
+  display: grid; place-items: center; font-style: normal;
+  font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--acc);
+}
+.d3 .cond .t { font-size: 13.5px; font-weight: 700; }
+.d3 .cond .s { font-size: 12px; color: var(--mid); margin-top: 2px; }
+.d3 .cond .arr { margin-left: auto; color: var(--dim); font-size: 11px; }
+
+.d3 .sess {
+  background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+  padding: 15px 16px 16px; margin-bottom: 12px;
+}
+.d3 .sess-top { display: flex; align-items: center; margin-bottom: 12px; }
+.d3 .sess-top .t { font-size: 13px; font-weight: 700; color: var(--mid); }
+.d3 .sess-top .time { margin-left: auto; font-size: 13px; color: var(--mid); }
+.d3 .sess-top .time b { color: var(--tx); font-weight: 600; }
+.d3 .seg2 { display: flex; background: rgba(255,235,200,.05); border-radius: 999px; padding: 3px; }
+.d3 .seg2 button { flex: 1; padding: 9px 0; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--dim); transition: all .18s; }
+.d3 .seg2 button.on { background: var(--acc); color: #1b1a10; font-weight: 800; }
+
+.d3 .ex {
+  background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+  padding: 16px 16px 14px; margin-bottom: 12px;
+}
+.d3 .ex-hd { display: flex; align-items: center; gap: 9px; }
+.d3 .part {
+  font-size: 11px; font-weight: 700; color: var(--warm);
+  background: rgba(255,184,107,.1); border-radius: 999px; padding: 3px 10px;
+}
+.d3 .ex-name { font-size: 17.5px; font-weight: 800; letter-spacing: -.02em; }
+.d3 .ex-x { margin-left: auto; color: var(--dim); font-size: 15px; }
+
+.d3 .pr {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  background: rgba(205,232,74,.06); border-radius: 14px; padding: 9px 12px; margin-top: 11px;
+  font-size: 12.5px; color: var(--mid);
+}
+.d3 .pr .v { color: var(--tx); font-weight: 600; }
+.d3 .pr .arr { margin-left: auto; font-size: 9px; color: var(--dim); transition: transform .2s; }
+.d3 .pr.open .arr { transform: rotate(180deg); }
+.d3 .hist { display: none; padding: 9px 12px 2px; font-size: 12.5px; color: var(--mid); }
+.d3 .hist.show { display: block; }
+.d3 .hist .h-set { padding: 2px 0; }
+.d3 .hist .h-set b { color: var(--tx); font-weight: 600; }
+
+.d3 .set-hd, .d3 .set-row { display: grid; grid-template-columns: 18px 86px 1fr 1fr 22px; gap: 8px; align-items: center; }
+.d3 .set-hd { padding: 13px 2px 5px; font-size: 10.5px; color: var(--dim); text-align: center; font-weight: 600; }
+.d3 .set-row { padding: 3.5px 2px; }
+.d3 .set-num { font-family: 'Outfit', sans-serif; font-size: 12px; color: var(--dim); text-align: center; }
+.d3 .seg3 { display: flex; background: rgba(255,235,200,.05); border-radius: 10px; padding: 2px; }
+.d3 .seg3 button { flex: 1; font-size: 11px; padding: 5.5px 0; border-radius: 8px; color: var(--dim); }
+.d3 .seg3 button.on { background: var(--acc); color: #1b1a10; font-weight: 800; }
+.d3 .inp {
+  width: 100%; background: rgba(255,235,200,.05); border: 1px solid transparent; border-radius: 12px;
+  color: var(--tx); font-family: 'Outfit', sans-serif; font-size: 16.5px; font-weight: 500;
+  text-align: center; padding: 9px 4px;
+}
+.d3 .inp:focus { border-color: var(--acc-deep); background: rgba(205,232,74,.07); }
+.d3 .del { color: var(--dim); text-align: center; font-size: 16px; }
+.d3 .add-set {
+  display: block; width: 100%; margin-top: 10px; padding: 10px 0; border-radius: 14px;
+  background: rgba(205,232,74,.08); color: var(--acc); font-size: 13px; font-weight: 700;
+}
+.d3 .add-row { display: flex; gap: 10px; margin: 14px 0 8px; }
+.d3 .add-row button {
+  flex: 1; padding: 14px 0; border-radius: 18px; font-size: 14px; font-weight: 800;
+  background: var(--acc); color: #1b1a10;
+  box-shadow: 0 18px 34px -18px rgba(205,232,74,.45), 0 4px 12px -6px rgba(8,5,1,.5);
+}
+.d3 .add-row button.alt { background: var(--card2); color: var(--mid); box-shadow: none; border: 1px solid var(--line); }
+.d3 .tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  display: flex; background: rgba(22,19,15,.92);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.d3 .tabbar button { flex: 1; padding: 13px 0 11px; font-size: 11.5px; color: var(--dim); font-weight: 600; }
+.d3 .tabbar button.on { color: var(--acc); }
+</style>
+</head>
+<body>
+
+<!-- 스프린트 스위처 -->
+<div class="switcher">
+  <div class="sw-row">
+    <button class="sw-btn on" data-target="s1">1 산업적<small>밀도 · 격자 · 모노</small></button>
+    <button class="sw-btn" data-target="s2">2 미니멀<small>여백 · 큰 숫자</small></button>
+    <button class="sw-btn" data-target="s3">3 소프트<small>온기 · 둥긂</small></button>
+  </div>
+  <div class="sw-hint">좌우로 밀어도 전환됩니다 · 같은 데이터(7/3 하체), 톤만 다름</div>
+</div>
+
+<!-- ============ 시안 1 : 산업적 ============ -->
+<section class="screen d1 active" id="s1">
+  <div class="wrap">
+    <header class="hd" data-anim style="animation-delay:.02s">
+      <div class="logo"><b>FIT</b>LOG</div>
+      <div class="hd-date">2026-07-03 FRI</div>
+    </header>
+
+    <div class="cond" data-anim style="animation-delay:.07s">
+      <span class="lbl">CONDITION</span>
+      <span class="val">7/10</span>
+      <span class="sub">64.2kg</span>
+    </div>
+
+    <div class="sess" data-anim style="animation-delay:.12s">
+      <div class="sess-hd">
+        <span class="lbl">SESSION 01</span>
+        <span class="time mono">18:58 <span>→ --:--</span></span>
+      </div>
+      <div class="seg2">
+        <button>PT</button>
+        <button class="on">개인운동</button>
+      </div>
+    </div>
+
+    <div class="ex" data-anim style="animation-delay:.17s">
+      <div class="ex-hd">
+        <span class="part">하체</span>
+        <span class="ex-name">스쿼트</span>
+        <button class="ex-x">✕</button>
+      </div>
+      <button class="pr" data-hist>
+        <span class="tag">PR</span>
+        <span class="mono">8kg · 07-03 (금)</span>
+        <span class="arr">▼</span>
+      </button>
+      <div class="hist">
+        <div class="h-date">직전 07-03 (금)</div>
+        <div class="h-set"><b>4kg</b> × 30</div>
+        <div class="h-set"><b>6kg</b> × 20</div>
+        <div class="h-set"><b>8kg</b> × 20</div>
+      </div>
+      <div class="set-hd"><span></span><span>측</span><span>KG</span><span>회</span><span></span></div>
+      <div class="set-row">
+        <span class="set-num">1</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="4">
+        <input class="inp" inputmode="numeric" value="30">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">2</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="6">
+        <input class="inp" inputmode="numeric" value="20">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">3</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="8">
+        <input class="inp" inputmode="numeric" value="20">
+        <button class="del">−</button>
+      </div>
+      <button class="add-set">+ 세트</button>
+    </div>
+
+    <div class="ex" data-anim style="animation-delay:.22s">
+      <div class="ex-hd">
+        <span class="part">하체</span>
+        <span class="ex-name">레그 프레스</span>
+        <button class="ex-x">✕</button>
+      </div>
+      <button class="pr" data-hist>
+        <span class="tag">PR</span>
+        <span class="mono">75.5kg · 07-03 (금)</span>
+        <span class="arr">▼</span>
+      </button>
+      <div class="hist">
+        <div class="h-date">직전 06-29 (월)</div>
+        <div class="h-set"><b>45.5kg</b> × 15</div>
+        <div class="h-set"><b>65.5kg</b> × 12</div>
+        <div class="h-set"><b>65.5kg</b> × 12</div>
+      </div>
+      <div class="set-hd"><span></span><span>측</span><span>KG</span><span>회</span><span></span></div>
+      <div class="set-row">
+        <span class="set-num">1</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="45.5">
+        <input class="inp" inputmode="numeric" value="15">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">2</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="65.5">
+        <input class="inp" inputmode="numeric" value="12">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">3</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="75.5">
+        <input class="inp" inputmode="numeric" value="15">
+        <button class="del">−</button>
+      </div>
+      <button class="add-set">+ 세트</button>
+    </div>
+
+    <div class="add-row" data-anim style="animation-delay:.27s">
+      <button>+ 웨이트</button>
+      <button>+ 유산소</button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="on">기록</button>
+    <button>캘린더</button>
+    <button>분석</button>
+  </nav>
+</section>
+
+<!-- ============ 시안 2 : 미니멀 ============ -->
+<section class="screen d2" id="s2">
+  <div class="wrap">
+    <header class="hd" data-anim style="animation-delay:.02s">
+      <div class="logo">FITLOG</div>
+      <div class="hd-date"><b>7.3</b> 금요일</div>
+      <div class="hd-sub">기록이 곧 성장이다</div>
+    </header>
+
+    <div class="cond" data-anim style="animation-delay:.08s">
+      <span class="k">컨디션</span>
+      <span class="v">7<small> /10</small></span>
+      <span class="note">몸무게 64.2kg</span>
+    </div>
+
+    <div class="sess" data-anim style="animation-delay:.14s">
+      <span class="k">세션 1</span>
+      <div class="mode">
+        <button>PT</button>
+        <button class="on">개인운동</button>
+      </div>
+      <span class="time">18:58 <span>→</span></span>
+    </div>
+
+    <div class="ex" data-anim style="animation-delay:.2s">
+      <div class="ex-hd">
+        <span class="part">하체</span>
+        <span class="ex-name">스쿼트</span>
+        <button class="ex-x">✕</button>
+      </div>
+      <button class="pr" data-hist>
+        <span class="tag">PR</span>
+        <span class="v">8kg · 07-03 금</span>
+        <span class="arr">▼</span>
+      </button>
+      <div class="hist">
+        <div class="h-date">직전 07-03 금</div>
+        <div class="h-set"><b>4kg</b> × 30 &nbsp; <b>6kg</b> × 20 &nbsp; <b>8kg</b> × 20</div>
+      </div>
+      <div class="set-row">
+        <span class="set-num">1</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="4"><span class="unit">kg</span>
+        <input class="inp" inputmode="numeric" value="30">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">2</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="6"><span class="unit">kg</span>
+        <input class="inp" inputmode="numeric" value="20">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row live">
+        <span class="set-num">3</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="8"><span class="unit">kg</span>
+        <input class="inp" inputmode="numeric" value="20">
+        <button class="del">−</button>
+      </div>
+      <button class="add-set">+ 세트 추가</button>
+    </div>
+
+    <div class="ex" data-anim style="animation-delay:.26s">
+      <div class="ex-hd">
+        <span class="part">하체</span>
+        <span class="ex-name">레그 프레스</span>
+        <button class="ex-x">✕</button>
+      </div>
+      <button class="pr" data-hist>
+        <span class="tag">PR</span>
+        <span class="v">75.5kg · 07-03 금</span>
+        <span class="arr">▼</span>
+      </button>
+      <div class="hist">
+        <div class="h-date">직전 06-29 월</div>
+        <div class="h-set"><b>45.5kg</b> × 15 &nbsp; <b>65.5kg</b> × 12 &nbsp; <b>65.5kg</b> × 12</div>
+      </div>
+      <div class="set-row">
+        <span class="set-num">1</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="45.5"><span class="unit">kg</span>
+        <input class="inp" inputmode="numeric" value="15">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">2</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="65.5"><span class="unit">kg</span>
+        <input class="inp" inputmode="numeric" value="12">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row live">
+        <span class="set-num">3</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="75.5"><span class="unit">kg</span>
+        <input class="inp" inputmode="numeric" value="15">
+        <button class="del">−</button>
+      </div>
+      <button class="add-set">+ 세트 추가</button>
+    </div>
+
+    <div class="add-row" data-anim style="animation-delay:.32s">
+      <button>+ 웨이트</button>
+      <button class="ghost">+ 유산소</button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="on">기록</button>
+    <button>캘린더</button>
+    <button>분석</button>
+  </nav>
+</section>
+
+<!-- ============ 시안 3 : 소프트 ============ -->
+<section class="screen d3" id="s3">
+  <div class="wrap">
+    <header class="hd" data-anim style="animation-delay:.02s">
+      <div class="logo"><b>Fit</b>Log</div>
+      <div class="hd-date">7월 3일 금요일</div>
+    </header>
+
+    <div class="cond card-shadow" data-anim style="animation-delay:.07s">
+      <div class="ring"><i>7</i></div>
+      <div>
+        <div class="t">오늘 컨디션 좋아요</div>
+        <div class="s">몸무게 64.2kg · 어제보다 −0.3</div>
+      </div>
+      <span class="arr">▼</span>
+    </div>
+
+    <div class="sess card-shadow" data-anim style="animation-delay:.12s">
+      <div class="sess-top">
+        <span class="t">세션 1</span>
+        <span class="time"><b>오후 6:58</b> 시작</span>
+      </div>
+      <div class="seg2">
+        <button>PT</button>
+        <button class="on">개인운동</button>
+      </div>
+    </div>
+
+    <div class="ex card-shadow" data-anim style="animation-delay:.17s">
+      <div class="ex-hd">
+        <span class="part">하체</span>
+        <span class="ex-name">스쿼트</span>
+        <button class="ex-x">✕</button>
+      </div>
+      <button class="pr" data-hist>
+        <span>🏆</span>
+        <span class="v num">8kg</span>
+        <span>· 07-03 (금)</span>
+        <span class="arr">▼</span>
+      </button>
+      <div class="hist">
+        <div>직전 07-03 (금)</div>
+        <div class="h-set"><b>4kg</b> × 30 · <b>6kg</b> × 20 · <b>8kg</b> × 20</div>
+      </div>
+      <div class="set-hd"><span></span><span>측</span><span>kg</span><span>회</span><span></span></div>
+      <div class="set-row">
+        <span class="set-num">1</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="4">
+        <input class="inp" inputmode="numeric" value="30">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">2</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="6">
+        <input class="inp" inputmode="numeric" value="20">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">3</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="8">
+        <input class="inp" inputmode="numeric" value="20">
+        <button class="del">−</button>
+      </div>
+      <button class="add-set">+ 세트</button>
+    </div>
+
+    <div class="ex card-shadow" data-anim style="animation-delay:.22s">
+      <div class="ex-hd">
+        <span class="part">하체</span>
+        <span class="ex-name">레그 프레스</span>
+        <button class="ex-x">✕</button>
+      </div>
+      <button class="pr" data-hist>
+        <span>🏆</span>
+        <span class="v num">75.5kg</span>
+        <span>· 07-03 (금)</span>
+        <span class="arr">▼</span>
+      </button>
+      <div class="hist">
+        <div>직전 06-29 (월)</div>
+        <div class="h-set"><b>45.5kg</b> × 15 · <b>65.5kg</b> × 12 · <b>65.5kg</b> × 12</div>
+      </div>
+      <div class="set-hd"><span></span><span>측</span><span>kg</span><span>회</span><span></span></div>
+      <div class="set-row">
+        <span class="set-num">1</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="45.5">
+        <input class="inp" inputmode="numeric" value="15">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">2</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="65.5">
+        <input class="inp" inputmode="numeric" value="12">
+        <button class="del">−</button>
+      </div>
+      <div class="set-row">
+        <span class="set-num">3</span>
+        <div class="seg3"><button class="on">양</button><button>좌</button><button>우</button></div>
+        <input class="inp" inputmode="decimal" value="75.5">
+        <input class="inp" inputmode="numeric" value="15">
+        <button class="del">−</button>
+      </div>
+      <button class="add-set">+ 세트</button>
+    </div>
+
+    <div class="add-row" data-anim style="animation-delay:.27s">
+      <button>+ 웨이트</button>
+      <button class="alt">+ 유산소</button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="on">기록</button>
+    <button>캘린더</button>
+    <button>분석</button>
+  </nav>
+</section>
+
+<script>
+// ---------- 시안 전환 ----------
+var order = ['s1', 's2', 's3'];
+var swBtns = document.querySelectorAll('.sw-btn');
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(function (s) {
+    s.classList.toggle('active', s.id === id);
+  });
+  swBtns.forEach(function (b) {
+    b.classList.toggle('on', b.dataset.target === id);
+  });
+  // 등장 모션 재생 (한 종류만, 절제)
+  var scr = document.getElementById(id);
+  scr.querySelectorAll('[data-anim]').forEach(function (el) {
+    el.style.animation = 'none';
+    void el.offsetWidth; // reflow
+    el.style.animation = '';
+  });
+  window.scrollTo(0, 0);
+}
+
+swBtns.forEach(function (b) {
+  b.addEventListener('click', function () { show(b.dataset.target); });
+});
+
+// 스와이프 전환
+var tx = null, ty = null;
+document.addEventListener('touchstart', function (e) {
+  if (e.target.closest('input, .seg3, .seg2, .mode')) { tx = null; return; }
+  tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchend', function (e) {
+  if (tx === null) return;
+  var dx = e.changedTouches[0].clientX - tx;
+  var dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    var cur = order.indexOf(document.querySelector('.screen.active').id);
+    var next = dx < 0 ? Math.min(cur + 1, 2) : Math.max(cur - 1, 0);
+    if (next !== cur) show(order[next]);
+  }
+  tx = null;
+}, { passive: true });
+
+// ---------- 시안 내 인터랙션 (실감용) ----------
+// 측 양/좌/우 · PT/개인운동 · 탭바: 형제 중 단일 선택
+document.querySelectorAll('.seg3, .seg2, .mode, .tabbar').forEach(function (group) {
+  group.addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    group.querySelectorAll('button').forEach(function (b) { b.classList.remove('on'); });
+    btn.classList.add('on');
+  });
+});
+
+// PR 지난기록 토글 (접힘 PR / 펼침 직전 세트)
+document.querySelectorAll('[data-hist]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var hist = btn.parentElement.querySelector('.hist');
+    var open = hist.classList.toggle('show');
+    btn.classList.toggle('open', open);
+  });
+});
+</script>
+</body>
+</html>
