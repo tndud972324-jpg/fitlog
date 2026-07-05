@@ -6,7 +6,7 @@
 <title>FitLog — 디자인 파이널 시안 v2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 /* ============================================================
@@ -72,7 +72,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
   letter-spacing: .22em; color: var(--mid);
 }
 .hd-date { font-size: var(--fs-title); font-weight: 700; letter-spacing: -.03em; margin-top: 16px; }
-.hd-date small { font-size: var(--fs-small); font-weight: 500; color: var(--mid); margin-left: 8px; letter-spacing: 0; }
+.hd-date small { font-size: var(--fs-small); font-weight: 400; color: var(--mid); margin-left: 8px; letter-spacing: 0; }
 
 /* ---------- 카드: 선 없음, 면 단차로만 ---------- */
 .card {
@@ -86,7 +86,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
 .cond { display: flex; align-items: baseline; gap: 16px; }
 .cond .k { font-size: var(--fs-small); font-weight: 600; color: var(--mid); }
 .cond .v { font-size: var(--fs-title); font-weight: 600; letter-spacing: -.02em; }
-.cond .v small { font-size: var(--fs-micro); font-weight: 400; color: var(--dim); }
+.cond .v small { font-size: var(--fs-micro); font-weight: 600; color: var(--dim); }
 .cond .note { margin-left: auto; font-size: var(--fs-small); color: var(--mid); }
 .cond .arr { font-size: 10px; color: var(--dim); }
 
@@ -95,9 +95,9 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
 .sess-top .k { font-size: var(--fs-small); font-weight: 600; color: var(--mid); }
 .sess-top .time { margin-left: auto; font-size: var(--fs-small); color: var(--mid); }
 .sess-top .time b { color: var(--tx); font-weight: 600; }
-.seg2 { display: flex; background: var(--b-well); border-radius: 10px; padding: 3px; }
+.seg2 { display: flex; background: var(--b-well); border-radius: 10px; padding: 2px; }
 .seg2 button {
-  flex: 1; padding: 9px 0; border-radius: 8px;
+  flex: 1; padding: 8px 0; border-radius: 8px;
   font-size: var(--fs-small); font-weight: 600; color: var(--dim);
   transition: all .15s;
 }
@@ -115,7 +115,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
   display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
   background: var(--acc-soft); border-radius: 10px; padding: 8px 12px; margin-top: 12px;
 }
-.pr .tag { font-size: var(--fs-micro); font-weight: 700; letter-spacing: .14em; color: var(--acc); }
+.pr .tag { font-size: var(--fs-micro); font-weight: 600; letter-spacing: .12em; color: var(--acc); }
 .pr .v { font-size: var(--fs-small); color: var(--mid); }
 .pr .v b { color: var(--tx); font-weight: 600; }
 .pr .arr { margin-left: auto; font-size: 9px; color: var(--dim); transition: transform .2s; }
@@ -124,32 +124,32 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
 .hist.show { display: block; }
 .hist .h-date { font-size: var(--fs-micro); letter-spacing: .08em; color: var(--dim); margin-bottom: 4px; }
 .hist .h-set { font-size: var(--fs-small); color: var(--mid); padding: 2px 0; }
-.hist .h-set b { color: var(--tx); font-weight: 500; }
+.hist .h-set b { color: var(--tx); font-weight: 600; }
 
 /* 세트 그리드 — 큰 숫자가 주인공 */
 .set-hd, .set-row { display: grid; grid-template-columns: 16px 80px 1fr 1fr 24px; gap: 8px; align-items: center; }
 .set-hd { padding: 16px 0 8px; font-size: var(--fs-micro); letter-spacing: .1em; color: var(--dim); text-align: center; font-weight: 600; }
 .set-row { padding: 4px 0; }
-.set-num { font-family: var(--font-num); font-size: var(--fs-micro); color: var(--dim); text-align: center; }
+.set-num { font-family: var(--font-num); font-size: var(--fs-small); font-weight: 600; color: var(--dim); text-align: center; }
 .seg3 { display: flex; background: var(--b-well); border-radius: 9px; padding: 2px; }
-.seg3 button { flex: 1; font-size: var(--fs-micro); padding: 7px 0; border-radius: 7px; color: var(--dim); }
+.seg3 button { flex: 1; font-size: var(--fs-micro); padding: 8px 0; border-radius: 7px; color: var(--dim); }
 .seg3 button.on { background: var(--b-active); color: var(--tx); font-weight: 700; }
 .inp {
   width: 100%; background: var(--b-well); border-radius: 10px;
   color: var(--tx); font-family: var(--font-num); font-variant-numeric: tabular-nums;
-  font-size: var(--fs-title); font-weight: 600; letter-spacing: -.02em;
+  font-size: var(--fs-title); font-weight: 400; letter-spacing: -.02em;
   text-align: center; padding: 8px 4px;
 }
 .inp:focus { box-shadow: 0 0 0 2px var(--acc); }
 .del { color: var(--dim); text-align: center; font-size: var(--fs-body); }
 .add-set {
-  display: block; width: 100%; margin-top: 8px; padding: 9px 0; border-radius: 10px;
+  display: block; width: 100%; margin-top: 8px; padding: 8px 0; border-radius: 10px;
   border: 2px dashed var(--dash); color: var(--mid); font-size: var(--fs-small); font-weight: 600;
 }
 
 /* 횟수/초 토글 — 세트 유형 (setType: reps|seconds) */
 .type-seg { display: inline-flex; background: var(--b-well); border-radius: 8px; padding: 2px; margin-top: 10px; }
-.type-seg button { font-size: var(--fs-micro); font-weight: 600; padding: 5px 14px; border-radius: 6px; color: var(--dim); }
+.type-seg button { font-size: var(--fs-micro); font-weight: 600; padding: 4px 16px; border-radius: 6px; color: var(--dim); }
 .type-seg button.on { background: var(--b-active); color: var(--tx); font-weight: 700; }
 
 /* 주 버튼 — 가장 밝은 한 음 ② */
